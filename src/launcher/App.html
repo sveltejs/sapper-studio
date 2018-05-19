@@ -1,0 +1,138 @@
+<main>
+	<h1>Sapper Studio</h1>
+
+	<div class="menu">
+		<div class="left">
+			<button class="large" on:click="openExistingProject(null)">Open project</button>
+
+			{#each recent as dir}
+				<button class="small" on:click="openExistingProject(dir)">{basename(dir)}</button>
+			{:else}
+				<p>recent projects will appear here</p>
+			{/each}
+		</div>
+
+		<div class="right">
+			<button class="large" on:click="createNewProject()">Create project</button>
+
+			{#if status}
+				<p>{status}</p>
+			{/if}
+		</div>
+	</div>
+</main>
+
+<style>
+	:global(body) {
+		background-color: white;
+		color: #333;
+		-webkit-app-region: drag;
+		user-select: none;
+	}
+
+	h1 {
+		font-family: Rajdhani;
+		font-weight: 300;
+		color: rgb(170,30,30);
+		margin: 0 0 1em 0;
+		text-transform: uppercase;
+	}
+
+	main {
+		padding: 1em;
+		height: 100%;
+		box-sizing: border-box;
+	}
+
+	h1 {
+		text-align: center;
+		font-size: 3.2em;
+		font-weight: 300;
+		margin: 0 0 1em 0;
+		border-bottom: 1px solid rgba(170,30,30,0.4);
+	}
+
+	.menu {
+		margin: 0 auto;
+		max-width: 40em;
+	}
+
+	.left, .right {
+		width: 50%;
+		float: left;
+		padding: 0.5em;
+		box-sizing: border-box;
+	}
+
+	.large {
+		padding: 0.5em 2em;
+		background-color: rgb(170,30,30);
+		color: white;
+		text-transform: uppercase;
+		line-height: 1;
+		border: none;
+		outline: none;
+		border-radius: 0.2em;
+		font-family: inherit;
+		font-size: 1.2em;
+		font-weight: 700;
+		font-family: Rajdhani;
+		width: 100%;
+		margin: 0 0 0.5em 0;
+	}
+
+	.small {
+		font-family: inherit;
+		font-size: inherit;
+		width: 100%;
+		background: white;
+		border: none;
+		outline: none;
+		text-align: left;
+		padding: 0.4em 1em;
+		border-radius: 0.2em;
+		margin: 0 0 0.2em 0;
+	}
+
+	.small:hover {
+		background-color: #f4f4f4;
+		transition: background-color 0.2s;
+	}
+</style>
+
+<script>
+	import * as path from 'path';
+	import { remote, ipcRenderer } from 'electron';
+	import readJSON from '../shared/readJSON';
+
+	const userData = remote.app.getPath('userData');
+	const recent = readJSON(path.join(userData, 'recent.json')) || [];
+
+	export default {
+		data() {
+			return {
+				recent
+			};
+		},
+
+		helpers: {
+			basename: path.basename
+		},
+
+		oncreate() {
+			ipcRenderer.on('status', (event, status) => {
+				this.set({ status });
+			});
+		},
+
+		methods: {
+			openExistingProject(dir) {
+				ipcRenderer.send('open-existing-project', dir);
+			},
+
+			createNewProject() {
+				ipcRenderer.send('create-new-project');
+			}
+		}
+	};
+</script>

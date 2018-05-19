@@ -1,0 +1,75 @@
+<svelte:head>
+	<title>{$dir}</title>
+</svelte:head>
+
+<main in:fade class="{fullscreen ? 'fullscreen' : ''}">
+	<div class="fake-title">{$dir}</div>
+
+	<div class="panes">
+
+	</div>
+</main>
+
+<style>
+	:global(body) {
+		overflow: hidden;
+	}
+
+	main {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		padding: 22px 0 0 0;
+		background: linear-gradient(155deg, #111 0%,#222 100%);
+	}
+
+	main.fullscreen {
+		padding: 0;
+	}
+
+	.fake-title {
+		position: absolute;
+		width: 100%;
+		height: 22px;
+		top: 0;
+		font-size: 12px;
+		background-color: rgba(255,255,255,0.05);
+		color: #ccc;
+		text-align: center;
+		-webkit-app-region: drag;
+		padding: 3px 40px;
+	}
+
+	.fullscreen .fake-title {
+		display: none;
+	}
+
+	.panes {
+		position: relative;
+		width: 100%;
+		height: 100%;
+	}
+</style>
+
+<script>
+	import { remote } from 'electron';
+	import { fade } from 'svelte-transitions';
+
+	const win = remote.getCurrentWindow();
+
+	export default {
+		oncreate() {
+			win.addListener('enter-full-screen', () => {
+				this.set({ fullscreen: true });
+			});
+
+			win.addListener('leave-full-screen', () => {
+				this.set({ fullscreen: false });
+			});
+		},
+
+		transitions: {
+			fade
+		}
+	};
+</script>

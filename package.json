@@ -1,0 +1,36 @@
+{
+  "name": "sapper-studio",
+  "version": "0.0.1",
+  "description": "Sapper Studio",
+  "main": "dist/main.ts.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "rollup -cw",
+    "build": "rollup -c"
+  },
+  "repository": "https://github.com/electron/electron-quick-start",
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
+  ],
+  "author": "GitHub",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "^2.0.0",
+    "rollup": "^0.59.1",
+    "rollup-plugin-commonjs": "^9.1.3",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "rollup-plugin-svelte": "^4.1.0",
+    "rollup-plugin-typescript": "^0.8.1",
+    "svelte": "^2.6.3",
+    "tslib": "^1.9.1",
+    "typescript": "^2.8.3"
+  },
+  "dependencies": {
+    "degit": "^2.1.3",
+    "svelte-transitions": "^1.2.0"
+  }
+}
