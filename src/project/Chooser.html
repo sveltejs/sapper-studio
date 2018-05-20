@@ -1,0 +1,119 @@
+<svelte:window on:mousedown="set({ showMenu: false })"/>
+
+<div class="chooser {focused ? 'focused' : ''}">
+	<button class="main" on:click="set({ showMenu: !showMenu })">{selected.name}</button>
+
+	{#if showMenu}
+		<div class="menu" on:mousedown="event.stopPropagation()">
+			{#each options as option}
+				<button class="{option === selected ? 'selected' : ''}" on:click="select(option)">{option.name}</button>
+			{/each}
+		</div>
+
+		<span class="shadow-blocker">{options[0].name}</span>
+	{/if}
+</div>
+
+<style>
+	.chooser {
+		--bbg: #444;
+		background-color: var(--bg);
+		/* border-bottom: 1px solid rgba(170,30,30,0.4); */
+		font-size: 14px;
+		box-shadow: 0 2px 2px rgba(0,0,0,0.1);
+	}
+
+	.focused {
+		--bg: #666;
+		background-color: #666;
+	}
+
+	button {
+		font-family: inherit;
+		font-size: inherit;
+		background-color: transparent;
+		outline: none;
+		line-height: 1;
+		color: #eee;
+		border: none;
+		padding: 0.5em 1em 0.5em 2em;
+	}
+
+	button.main {
+		background: url(../assets/icons/dropdown-white.svg) no-repeat 0.5em 50%;
+		background-size: 1em 1em;
+	}
+
+	.menu {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 20em;
+		max-width: 100%;
+		background-color: var(--bg);
+		box-shadow: 2px 2px 2px rgba(0,0,0,0.1);
+		border-radius: 2px;
+	}
+
+	.menu button {
+		display: block;
+	}
+
+	.menu button.selected {
+		background: url(../assets/icons/check-white.svg) no-repeat 0.5em 50%;
+		background-size: 1em 1em;
+	}
+
+	/* .menu button.selected::before {
+		content: '\2714';
+		position: absolute;
+		top: 0;
+		left: 0.5em;
+	} */
+
+	.shadow-blocker {
+		position: absolute;
+		top: 0;
+		left: 1.5em;
+		display: block;
+		padding: 0.5em 1em 0.5em 0.5em;
+		pointer-events: none;
+		width: 100%;
+		line-height: 1;
+		background: var(--bg);
+	}
+</style>
+
+<script>
+	import Welcome from './panes/Welcome/index.html';
+	import Terminal from './panes/Terminal/index.html';
+	import Status from './panes/Status/index.html';
+	import Viewer from './panes/Viewer/index.html';
+
+	const options = [
+		{ name: 'Welcome screen', component: Welcome },
+		{ name: 'Status', component: Status },
+		{ name: 'Terminal', component: Terminal },
+		{ name: 'Viewer', component: Viewer }
+	];
+
+	let firstRun = true;
+
+	export default {
+		data() {
+			const selected = firstRun ? options[0] : options[1];
+			firstRun = false;
+
+			return {
+				options,
+				selected
+			}
+		},
+
+		methods: {
+			select(selected) {
+				this.set({ selected, showMenu: false });
+			}
+		}
+	};
+</script>

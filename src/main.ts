@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
+import * as child_process from 'child_process';
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import exec from './shared/exec';
 import readJSON from './shared/readJSON';
@@ -13,9 +14,19 @@ let projectWindow;
 const userData = app.getPath('userData');
 const recent = readJSON(path.join(userData, 'recent.json')) || [];
 
-console.log({
-	userData: app.getPath('userData')
-});
+const mode = process.env.NODE_ENV;
+
+function reloadOnChange(win) {
+	if (mode !== 'development') return { close: () => {} };
+
+	const watcher = require('chokidar').watch(path.join(__dirname, '**'), { ignoreInitial: true });
+
+	watcher.on('change', () => {
+		win.reload();
+	});
+
+	return watcher;
+}
 
 function launch() {
 	launcherWindow = new BrowserWindow({
@@ -34,8 +45,11 @@ function launch() {
 		})
 	);
 
+	const watcher = reloadOnChange(launcherWindow);
+
 	launcherWindow.on('closed', function() {
 		launcherWindow = null;
+		watcher.close();
 	});
 }
 
@@ -58,14 +72,17 @@ function openProject(dir) {
 
 	projectWindow.loadURL(
 		url.format({
-			pathname: path.join(__dirname, '../pages/project.html'),
+			pathname: path.join(__dirname, `../pages/project.html`),
 			protocol: 'file:',
 			slashes: true
 		})
 	);
 
+	const watcher = reloadOnChange(projectWindow);
+
 	projectWindow.on('closed', function() {
 		projectWindow = null;
+		watcher.close();
 	});
 
 	projectWindow.dir = dir;
@@ -138,4 +155,28 @@ ipcMain.on('open-existing-project', (event, dir) => {
 			}, 0);
 		});
 	}
+});
+
+ipcMain.on('start-app', (event, dir) => {
+	// for now, just run `sapper dev`. ultimately it would be advantageous
+	// to create APIs in Sapper that allow us to do this more directly
+	const sapper = path.resolve(dir, 'node_modules/.bin/sapper');
+	const proc = child_process.spawn(sapper, [`dev`], {
+		cwd: dir
+	});
+
+	proc.stdout.on('data', data => {
+		data = data.toString();
+
+		const match =  /Listening on http:\/\/localhost:(\d+)/.exec(data);
+		if (match) {
+			event.sender.send('started-app', match[1]);
+		}
+
+		console.log(data);
+	});
+
+	proc.on('error', err => {
+		console.error(err);
+	});
 });

@@ -6,7 +6,7 @@
 	<div class="fake-title">{$dir}</div>
 
 	<div class="panes">
-
+		<Subdivide component={Pane}/>
 	</div>
 </main>
 
@@ -54,17 +54,39 @@
 <script>
 	import { remote } from 'electron';
 	import { fade } from 'svelte-transitions';
+	import store from './store.js';
+	import Pane from './Pane.html';
 
 	const win = remote.getCurrentWindow();
 
 	export default {
-		oncreate() {
-			win.addListener('enter-full-screen', () => {
-				this.set({ fullscreen: true });
-			});
+		components: {
+			Subdivide: '@sveltejs/svelte-subdivide'
+		},
 
-			win.addListener('leave-full-screen', () => {
+		store: () => store,
+
+		data() {
+			return {
+				Pane
+			};
+		},
+
+		oncreate() {
+			const enter = () => {
+				this.set({ fullscreen: true });
+			};
+
+			const leave = () => {
 				this.set({ fullscreen: false });
+			};
+
+			win.addListener('enter-full-screen', enter);
+			win.addListener('leave-full-screen', leave);
+
+			this.on('destroy', () => {
+				win.removeListener('enter-full-screen', enter);
+				win.removeListener('leave-full-screen', leave);
 			});
 		},
 

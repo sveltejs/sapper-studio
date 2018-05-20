@@ -22,6 +22,34 @@
 		url('./fonts/Rajdhani/700.woff2') format('woff2');
 }
 
+@font-face{
+    font-family: 'Fira Code';
+    src: url('./fonts/FiraCode/FiraCode-Light.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face{
+    font-family: 'Fira Code';
+    src: url('./fonts/FiraCode/FiraCode-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face{
+    font-family: 'Fira Code';
+    src: url('./fonts/FiraCode/FiraCode-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face{
+    font-family: 'Fira Code';
+    src: url('./fonts/FiraCode/FiraCode-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
 * {
 	position: relative;
 	box-sizing: border-box;
@@ -38,11 +66,22 @@ body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
+	line-height: 1.5;
 }
 
 h1, h2, h3, h4, h5, h6 {
 	font-family: Rajdhani;
-	font-weight: 300;
-	color: rgb(170,30,30);
 	margin: 0 0 1em 0;
+	line-height: 1.2;
+}
+
+button {
+	font-family: inherit;
+	font-size: inherit;
+	border: none;
+	background: rgba(170,120,255,1);
+	color: white;
+	font-weight: bold;
+	outline: none;
+	padding: 0.5em 1em;
 }

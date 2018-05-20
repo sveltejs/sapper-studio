@@ -1,0 +1,18 @@
+{#if $running}
+	<p>running on <a href="http://localhost:{$port}">localhost:{$port}</a></p>
+{:else}
+	<button on:click="start()">start</button>
+{/if}
+
+<script>
+	import { ipcRenderer } from 'electron';
+
+	export default {
+		methods: {
+			start() {
+				const { dir } = this.store.get();
+				ipcRenderer.send('start-app', dir);
+			}
+		}
+	};
+</script>

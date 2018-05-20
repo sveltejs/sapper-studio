@@ -1,0 +1,111 @@
+<div ref:container bind:offsetWidth bind:offsetHeight>
+	<!-- TODO click to activate on first run, because it's slow as hell -->
+	<!-- TODO figure out what's causing the unsightly white bar -->
+</div>
+
+<style>
+	ref:container {
+		width: 100%;
+		height: 100%;
+		min-width: 100px;
+		background: black;
+	}
+</style>
+
+<script>
+	import debounce from 'just-debounce';
+
+	export default {
+		data() {
+
+		},
+
+		async oncreate() {
+			this.on('update', debounce(({ changed }) => {
+				if (this.terminal) this.terminal.fit();
+			}, 500));
+
+			this.on('destroy', () => {
+				if (this.terminal) {
+					this.terminal.destroy();
+					this.proc.destroy();
+				}
+
+				this.destroyed = true;
+			});
+
+			this.createTerminal();
+		},
+
+		methods: {
+			async createTerminal() {
+				console.time('total');
+
+				const { Terminal } = await import('xterm');
+				const fit = await import('xterm/lib/addons/fit/fit');
+
+				const pty = await import('node-pty');
+
+				const defaultShell = await import('default-shell');
+
+				// edge case — component was destroyed while we were importing
+				if (this.destroyed) return;
+
+				const { dir } = this.store.get();
+
+
+				console.time('spawn pty');
+				console.profile('spawn pty');
+				this.proc = pty.spawn(defaultShell, ['--login'], {
+					name: 'xterm-color',
+					cols: 80,
+					rows: 40,
+					cwd: dir,
+					env: process.env
+				});
+				console.profileEnd('spawn pty');
+				console.timeEnd('spawn pty');
+
+				this.proc.on('data', data => {
+					this.terminal.write(data);
+				});
+
+				Terminal.applyAddon(fit);
+
+				console.time('create xterm');
+				console.profile('create xterm');
+				this.terminal = new Terminal({
+					cursorBlink: true,
+					cols: 80,
+					rows: 40,
+					fontFamily: 'Fira Code',
+					fontWeight: 300,
+					fontSize: 14
+				});
+				console.profileEnd('create xterm');
+				console.timeEnd('create xterm');
+
+
+				console.time('open xterm');
+				console.profile('open xterm');
+				this.terminal.open(this.refs.container);
+				console.profileEnd('open xterm');
+				console.timeEnd('open xterm');
+
+				this.terminal.on('resize', ({ cols, rows }) => {
+					this.proc.resize(cols, Math.max(rows, 10));
+				});
+
+				this.terminal.fit();
+
+				let buffer = '';
+
+				this.terminal.on('data', data => {
+					this.proc.write(data);
+				});
+
+				console.timeEnd('total');
+			}
+		}
+	};
+</script>

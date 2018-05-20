@@ -25,7 +25,10 @@ export default [
 			'child_process',
 			'fs',
 			'path',
-			'url'
+			'url',
+			'node-pty',
+			'default-shell',
+			'xterm'
 		]
 	}
 ];

@@ -1,0 +1,50 @@
+<div class="pane" on:mousedown="$set({ focusedPane: pane })">
+	<div class="chooser-container">
+		<Chooser bind:selected focused={pane === $focusedPane}/>
+	</div>
+
+	<div class="pane-content">
+		<svelte:component this={selected && selected.component}/>
+	</div>
+</div>
+
+<style>
+	.pane {
+		width: 100%;
+		height: 100%;
+		background-color: rgba(255,255,255,0.1);
+		color: #eee;
+		padding: 28px 0 0 0;
+	}
+
+	.pane-content {
+		width: 100%;
+		height: 100%;
+		border: 2px solid transparent;
+	}
+
+	.chooser-container {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 1em;
+		z-index: 2;
+	}
+</style>
+
+<script>
+	export default {
+		components: {
+			Chooser: './Chooser.html'
+		},
+
+		oncreate() {
+			const { pane } = this.get();
+
+			this.store.set({
+				focusedPane: pane
+			});
+		}
+	};
+</script>
