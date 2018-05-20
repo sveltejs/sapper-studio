@@ -4,7 +4,7 @@
 	</div>
 
 	<div class="pane-content">
-		<svelte:component this={selected && selected.component}/>
+		<svelte:component this={Component}/>
 	</div>
 </div>
 
@@ -45,6 +45,19 @@
 			this.store.set({
 				focusedPane: pane
 			});
+		},
+
+		async onstate({ changed, current }) {
+			if (changed.selected) {
+				const token = this.token = {};
+				console.time('load component');
+				const Component = await current.selected.fn();
+				console.timeEnd('load component');
+
+				if (token === this.token) {
+					this.set({ Component });
+				}
+			}
 		}
 	};
 </script>

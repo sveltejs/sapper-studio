@@ -85,18 +85,13 @@
 </style>
 
 <script>
-	import Welcome from './panes/Welcome/index.html';
-	import Terminal from './panes/Terminal/index.html';
-	import Status from './panes/Status/index.html';
-	import Viewer from './panes/Viewer/index.html';
-	import Files from './panes/Files/index.html';
-
 	const options = [
-		{ name: 'Welcome screen', component: Welcome },
-		{ name: 'Status', component: Status },
-		{ name: 'Terminal', component: Terminal },
-		{ name: 'Viewer', component: Viewer },
-		{ name: 'Files', component: Files }
+		{ name: 'Welcome screen', fn: () => import('./panes/Welcome/index.html') },
+		{ name: 'Status', fn: () => import('./panes/Status/index.html') },
+		{ name: 'Terminal', fn: () => import('./panes/Terminal/index.html') },
+		{ name: 'Viewer', fn: () => import('./panes/Viewer/index.html') },
+		{ name: 'Files', fn: () => import('./panes/Files/index.html') },
+		{ name: 'Editor', fn: () => import('./panes/Editor/index.html') }
 	];
 
 	let firstRun = true;
