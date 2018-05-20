@@ -1,0 +1,133 @@
+<ul>
+	{#each items as item (item.basename)}
+		{#if item.isDir}
+			<li class="directory {item.isDotfile ? 'hidden' : ''} {open[item.basename] ? 'open' : ''}">
+				<span on:click="toggle(item.basename)">{item.basename}</span>
+
+				{#if open[item.basename]}
+					<svelte:self dir={item.resolved}/>
+				{/if}
+			</li>
+		{:else}
+			<li class="file {item.isDotfile ? 'hidden' : ''}">
+				<span>{item.basename}</span>
+			</li>
+		{/if}
+
+	{/each}
+</ul>
+
+<style>
+	ul {
+		list-style: none;
+		padding: 0 0 0 1em;
+		margin: 0;
+	}
+
+	li {
+		font-size: 14px;
+		background: no-repeat 0.2em 0.4em;
+		background-size: 1em 1em;
+		line-height: 1;
+		margin: 0;
+	}
+
+	span {
+		display: block;
+		padding: 0.4em 0 0.4em 1.5em;
+	}
+
+	span:hover {
+		background-color: rgba(255,255,255,0.1);
+	}
+
+	.hidden span {
+		color: #999;
+	}
+
+	.file {
+		/* background-image: url('../assets/icons/file-white.svg'); */
+	}
+
+	.directory {
+		background-image: url('../assets/icons/chevronright-white.svg');
+	}
+
+	.directory.open {
+		background-image: url('../assets/icons/chevrondown-white.svg');
+	}
+</style>
+
+<script>
+	import * as fs from 'fs';
+	import * as path from 'path';
+
+	export default {
+		data() {
+			return {
+				items: [],
+				open: {}
+			};
+		},
+
+		oncreate() {
+			const { dir } = this.get();
+
+			this.on('destroy', () => {
+				this.destroyed = true;
+				if (this.watcher) this.watcher.close();
+			});
+
+			this.updateContents();
+			this.createWatcher();
+		},
+
+		methods: {
+			updateContents() {
+				const { dir } = this.get();
+
+				const items = fs.readdirSync(dir)
+					.map(file => {
+						const resolved = path.join(dir, file);
+						const stats = fs.statSync(resolved);
+
+						return {
+							resolved,
+							basename: file,
+							isDir: stats.isDirectory(),
+							isDotfile: file[0] === '.'
+						};
+					})
+					.sort((a, b) => {
+						if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
+						return a.basename < b.basename ? -1 : 1;
+					});
+
+				this.set({ items });
+			},
+
+			createWatcher() {
+				const { dir } = this.get();
+
+				const chokidar = require('chokidar');
+
+				this.watcher = chokidar.watch(path.join(dir, '*'), {
+					ignoreInitial: true
+				});
+
+				const handler = () => {
+					this.updateContents();
+				};
+
+				this.watcher.on('add', handler);
+				this.watcher.on('unlink', handler);
+			},
+
+			toggle(basename) {
+				const { open } = this.get();
+				open[basename] = !open[basename];
+				this.set({ open });
+			}
+		}
+	};
+</script>

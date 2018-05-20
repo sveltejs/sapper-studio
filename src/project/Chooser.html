@@ -89,19 +89,21 @@
 	import Terminal from './panes/Terminal/index.html';
 	import Status from './panes/Status/index.html';
 	import Viewer from './panes/Viewer/index.html';
+	import Files from './panes/Files/index.html';
 
 	const options = [
 		{ name: 'Welcome screen', component: Welcome },
 		{ name: 'Status', component: Status },
 		{ name: 'Terminal', component: Terminal },
-		{ name: 'Viewer', component: Viewer }
+		{ name: 'Viewer', component: Viewer },
+		{ name: 'Files', component: Files }
 	];
 
 	let firstRun = true;
 
 	export default {
 		data() {
-			const selected = firstRun ? options[0] : options[1];
+			const selected = firstRun ? options[0] : options[4];
 			firstRun = false;
 
 			return {
