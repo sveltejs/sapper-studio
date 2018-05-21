@@ -1,6 +1,6 @@
 <li
 	class="directory {isDotfile ? 'hidden' : ''} {open ? 'open' : ''}"
-	on:contextmenu="showDirectoryMenu()"
+	on:contextmenu="showDirectoryMenu(event)"
 >
 	{#if !root}
 		<span on:click="set({ open: !open })">{basename}</span>
@@ -33,7 +33,10 @@
 					<li
 						class="file {item.isDotfile ? 'hidden' : ''} {item.resolved === $selectedFile ? 'selected' : ''}"
 					>
-						<span on:click="$set({ selectedFile: item.resolved })">{item.basename}</span>
+						<span
+							on:click="$set({ selectedFile: item.resolved })"
+							on:contextmenu="showFileMenu(item, event)"
+						>{item.basename}</span>
 					</li>
 				{/if}
 			{/each}
@@ -275,7 +278,9 @@
 				this.set({ open });
 			},
 
-			showDirectoryMenu() {
+			showDirectoryMenu(event) {
+				event.stopPropagation();
+
 				const { Menu, MenuItem } = remote;
 				const { dir } = this.get();
 
@@ -317,6 +322,41 @@
 						label: 'Delete',
 						click: () => {
 							confirmDeletion(dir);
+						},
+						accelerator: 'CmdOrCtrl+Backspace'
+					}
+				]);
+
+				menu.popup({
+					window: remote.getCurrentWindow()
+				});
+			},
+
+			showFileMenu(item, event) {
+				event.stopPropagation();
+
+				const { Menu, MenuItem } = remote;
+
+				const menu = Menu.buildFromTemplate([
+					{
+						label: 'Reveal in Finder',
+						click: () => {
+							console.log('reveal in finder');
+						}
+					},
+
+					{
+						label: 'Rename',
+						click: () => {
+							console.log('rename');
+						},
+						accelerator: 'Enter'
+					},
+
+					{
+						label: 'Delete',
+						click: () => {
+							confirmDeletion(item.resolved);
 						},
 						accelerator: 'CmdOrCtrl+Backspace'
 					}
