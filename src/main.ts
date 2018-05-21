@@ -157,7 +157,13 @@ ipcMain.on('open-existing-project', (event, dir) => {
 	}
 });
 
+const processes = {};
+
 ipcMain.on('start-app', (event, dir) => {
+	if (processes[dir]) {
+		throw new Error(`Already running: ${dir}`);
+	}
+
 	// for now, just run `sapper dev`. ultimately it would be advantageous
 	// to create APIs in Sapper that allow us to do this more directly
 	const sapper = path.resolve(dir, 'node_modules/.bin/sapper');
@@ -172,11 +178,23 @@ ipcMain.on('start-app', (event, dir) => {
 		if (match) {
 			event.sender.send('started-app', match[1]);
 		}
-
-		console.log(data);
 	});
 
 	proc.on('error', err => {
 		console.error(err);
 	});
+
+	processes[dir] = proc;
+});
+
+ipcMain.on('stop-app', (event, dir) => {
+	const proc = processes[dir];
+	if (!proc) {
+		throw new Error(`No running process: ${dir}`);
+	}
+
+	proc.kill();
+	processes[dir] = null;
+
+	event.sender.send('stopped-app');
 });

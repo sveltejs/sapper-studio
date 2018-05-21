@@ -1,7 +1,8 @@
 {#if $running}
 	<p>running on <a href="http://localhost:{$port}">localhost:{$port}</a></p>
+	<button on:click="send('stop-app', $dir)">stop</button>
 {:else}
-	<button on:click="start()">start</button>
+	<button on:click="send('start-app', $dir)">start</button>
 {/if}
 
 <script>
@@ -9,9 +10,8 @@
 
 	export default {
 		methods: {
-			start() {
-				const { dir } = this.store.get();
-				ipcRenderer.send('start-app', dir);
+			send(message, data) {
+				ipcRenderer.send(message, data);
 			}
 		}
 	};

@@ -21,4 +21,11 @@ ipcRenderer.on('started-app', (event, port) => {
 	});
 });
 
+ipcRenderer.on('stopped-app', () => {
+	store.set({
+		running: false,
+		port: null
+	});
+});
+
 export default store;
