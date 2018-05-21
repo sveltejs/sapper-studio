@@ -16,11 +16,23 @@
 	{#if status}
 		<span class="status">{status}</span>
 	{/if}
+
+	<div class="actions" style="width: {selected.actions.length * 2}em">
+		{#each selected.actions as action}
+			<button
+				class="action"
+				title={action.title}
+				style="background-image: url(../assets/icons/{action.icon}-white.svg)"
+				on:click="fire('action', { method: action.method })"
+			></button>
+		{/each}
+	</div>
 </div>
 
 <style>
 	.chooser {
-		--bg: #444;
+		--bg: rgb(68,68,68);
+		--bgz: rgba(68,68,68,0);
 		background-color: var(--bg);
 		/* border-bottom: 1px solid rgba(170,30,30,0.4); */
 		font-size: 14px;
@@ -28,8 +40,8 @@
 	}
 
 	.focused {
-		--bg: #666;
-		background-color: #666;
+		--bg: rgb(102,102,102);
+		--bgz: rgba(102,102,102,0);
 	}
 
 	button {
@@ -94,16 +106,74 @@
 	.shadow-blocker.selected {
 		font-weight: bold;
 	}
+
+	.actions {
+		position: absolute;
+		top: 0;
+		right: 0;
+		background: var(--bg);
+	}
+
+	.actions::before {
+		content: '';
+		position: absolute;
+		left: -2em;
+		top: 0;
+		width: 2em;
+		height: 2em;
+		background: linear-gradient(90deg, var(--bgz) 0%,var(--bg) 100%);
+	}
+
+	.action {
+		width: 2em;
+		height: 2em;
+		display: inline-block;
+		padding: 0.5em;
+		background: no-repeat 50% 50%;
+		background-size: 20px;
+	}
 </style>
 
 <script>
 	const options = [
-		{ name: 'Welcome screen', fn: () => import('./panes/Welcome/index.html') },
-		{ name: 'Status', fn: () => import('./panes/Status/index.html') },
-		{ name: 'Terminal', fn: () => import('./panes/Terminal/index.html') },
-		{ name: 'Viewer', fn: () => import('./panes/Viewer/index.html') },
-		{ name: 'Editor', fn: () => import('./panes/Editor/index.html') },
-		{ name: 'Files', fn: () => import('./panes/Files/index.html') },
+		{
+			name: 'Welcome screen',
+			fn: () => import('./panes/Welcome/index.html'),
+			actions: []
+		},
+
+		{
+			name: 'Status',
+			fn: () => import('./panes/Status/index.html'),
+			actions: []
+		},
+
+		{
+			name: 'Terminal',
+			fn: () => import('./panes/Terminal/index.html'),
+			actions: []
+		},
+
+		{
+			name: 'Viewer',
+			fn: () => import('./panes/Viewer/index.html'),
+			actions: []
+		},
+
+		{
+			name: 'Editor',
+			fn: () => import('./panes/Editor/index.html'),
+			actions: []
+		},
+
+		{
+			name: 'Files',
+			fn: () => import('./panes/Files/index.html'),
+			actions: [
+				{ title: 'New file', icon: 'newfile', method: 'newFile' },
+				{ title: 'New directory', icon: 'newdir', method: 'newDir' }
+			]
+		},
 	];
 
 	let firstRun = true;

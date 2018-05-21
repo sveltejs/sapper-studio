@@ -31,7 +31,8 @@
 				if (this.destroyed) return;
 
 				const { selectedFile } = this.store.get();
-				this.webview.send('file', selectedFile);
+				console.log({ selectedFile });
+				if (selectedFile) this.load(selectedFile);
 			});
 
 			// TODO also activate on click
@@ -56,6 +57,8 @@
 
 				const { dir } = this.store.get();
 				const relative = path.relative(dir, file);
+
+				this.set({ status: '' }); // TODO binding bug
 				this.set({ status: relative });
 			},
 

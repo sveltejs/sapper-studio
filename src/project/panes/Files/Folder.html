@@ -1,21 +1,45 @@
-<ul>
-	{#each items as item (item.basename)}
-		{#if item.isDir}
-			<li class="directory {item.isDotfile ? 'hidden' : ''} {open[item.basename] ? 'open' : ''}">
-				<span on:click="toggle(item.basename)">{item.basename}</span>
+<li
+	class="directory {isDotfile ? 'hidden' : ''} {open ? 'open' : ''}"
+	on:contextmenu="showDirectoryMenu()"
+>
+	{#if !root}
+		<span on:click="set({ open: !open })">{basename}</span>
+	{/if}
 
-				{#if open[item.basename]}
+	{#if open}
+		<ul>
+			{#if creating}
+				<li class="{creating.type} creating">
+					<input
+						class="{creating.error ? 'invalid' : ''} {wiggle ? 'wiggle' : ''}"
+						placeholder="New {creating.type}"
+						on:input="validate(this.value)"
+						on:blur="create(creating, this.value)"
+						on:enter="this.blur()"
+						on:escape="set({ creating: null })"
+						ref:input
+					>
+
+					{#if creating.error}
+						<div class="error">{@html creating.error}</div>
+					{/if}
+				</li>
+			{/if}
+
+			{#each items as item (item.basename)}
+				{#if item.isDir}
 					<svelte:self dir={item.resolved}/>
+				{:else}
+					<li
+						class="file {item.isDotfile ? 'hidden' : ''} {item.resolved === $selectedFile ? 'selected' : ''}"
+					>
+						<span on:click="$set({ selectedFile: item.resolved })">{item.basename}</span>
+					</li>
 				{/if}
-			</li>
-		{:else}
-			<li class="file {item.isDotfile ? 'hidden' : ''} {item.resolved === $selectedFile ? 'selected' : ''}">
-				<span on:click="$set({ selectedFile: item.resolved })">{item.basename}</span>
-			</li>
-		{/if}
-
-	{/each}
-</ul>
+			{/each}
+		</ul>
+	{/if}
+</li>
 
 <style>
 	ul {
@@ -26,16 +50,63 @@
 
 	li {
 		font-size: 14px;
-		background: no-repeat 0.2em 0.4em;
-		background-size: 1em 1em;
 		line-height: 1;
 		margin: 0;
 	}
 
+	.creating {
+		padding: 0.1em 1.2em;
+	}
+
+	input {
+		font-family: inherit;
+		font-size: inherit;
+		padding: 0.2em 0.3em;
+		border: 1px solid rgba(255,255,255,0.1);
+		background-color: rgba(255,255,255,0.1);
+		border-radius: 2px;
+		outline: none;
+		color: #eee;
+		width: 100%
+	}
+
+	input.invalid {
+		background-color: rgba(255,50,50,0.1);
+		border: 1px solid rgb(255, 50, 50);
+	}
+
+	input.wiggle {
+		animation: wiggle 0.4s;
+	}
+
+	@keyframes wiggle {
+		0% { transform: translate(0,0); }
+		20% { transform: translate(4px,0); }
+		40% { transform: translate(-4px,0); }
+		60% { transform: translate(4px,0); }
+		80% { transform: translate(-4px,0); }
+		100% { transform: translate(0,0); }
+	}
+
+	.error {
+		border: 1px solid rgb(255, 50, 50);
+		background-color: rgb(160, 10, 10);
+		color: white;
+		font-size: 12px;
+		padding: 0.5em;
+		top: 2em;
+		border-radius: 0 0 2px 2px;
+		position: absolute;
+		width: calc(100% - 2.8em);
+		z-index: 2;
+	}
+
 	span {
 		display: block;
-		padding: 0.4em 0 0.4em 1.5em;
+		padding: 0.3em 0 0.3em 1.5em;
 		white-space: pre;
+		background: no-repeat 0.2em 0.4em;
+		background-size: 1em 1em;
 	}
 
 	span:hover {
@@ -50,11 +121,11 @@
 		/* background-image: url('../assets/icons/file-white.svg'); */
 	}
 
-	.directory {
+	.directory > span {
 		background-image: url('../assets/icons/chevronright-white.svg');
 	}
 
-	.directory.open {
+	.directory.open > span {
 		background-image: url('../assets/icons/chevrondown-white.svg');
 	}
 
@@ -67,6 +138,8 @@
 	import * as fs from 'fs';
 	import * as path from 'path';
 	import * as child_process from 'child_process';
+	import { remote } from 'electron';
+	import { enter, escape } from '../../../shared/key-events.ts';
 
 	let watcherProc;
 	const subscribers = {};
@@ -115,12 +188,37 @@
 		};
 	}
 
+	function confirmDeletion(file) {
+		const { dialog } = remote;
+
+		dialog.showMessageBox(remote.getCurrentWindow(), {
+			type: 'question',
+			buttons: ['Cancel', 'Move to trash'],
+			defaultId: 1,
+			cancelId: 0,
+			message: `Are you sure?`,
+			detail: `This will move '${file}' to the trash`
+		}, async index => {
+			if (index === 1) {
+				const rimraf = await import('rimraf');
+				rimraf(file, err => {
+					if (err) console.error(err);
+				});
+			}
+		});
+	}
+
 	export default {
 		data() {
 			return {
 				items: [],
-				open: {}
+				open: false
 			};
+		},
+
+		computed: {
+			isDotfile: ({ basename }) => basename[0] === '.',
+			basename: ({ dir }) => path.basename(dir)
 		},
 
 		oncreate() {
@@ -135,9 +233,16 @@
 			this.createWatcher();
 		},
 
+		events: { enter, escape },
+
 		methods: {
 			updateContents() {
 				const { dir } = this.get();
+
+				if (!fs.existsSync(dir)) {
+					// we're about to be destroyed
+					return;
+				}
 
 				const items = fs.readdirSync(dir)
 					.map(file => {
@@ -168,6 +273,105 @@
 				const { open } = this.get();
 				open[basename] = !open[basename];
 				this.set({ open });
+			},
+
+			showDirectoryMenu() {
+				const { Menu, MenuItem } = remote;
+				const { dir } = this.get();
+
+				const basename = path.basename(dir);
+
+				const menu = Menu.buildFromTemplate([
+					{
+						label: 'New file',
+						click: () => {
+							this.startCreating('file')
+						}
+					},
+
+					{
+						label: 'New directory',
+						click: () => {
+							this.startCreating('directory')
+						}
+					},
+
+					{ type: 'separator' },
+
+					{
+						label: 'Reveal in Finder',
+						click: () => {
+							console.log('reveal in finder');
+						}
+					},
+
+					{
+						label: 'Rename',
+						click: () => {
+							console.log('rename');
+						},
+						accelerator: 'Enter'
+					},
+
+					{
+						label: 'Delete',
+						click: () => {
+							confirmDeletion(dir);
+						},
+						accelerator: 'CmdOrCtrl+Backspace'
+					}
+				]);
+
+				menu.popup({
+					window: remote.getCurrentWindow()
+				});
+			},
+
+			startCreating(type) {
+				this.set({
+					open: true,
+					creating: { type, error: null }
+				});
+
+				this.refs.input.focus();
+				this.refs.input.select();
+			},
+
+			create(item, basename) {
+				if (item.error) {
+					this.set({ wiggle: false });
+					setTimeout(() => {
+						this.set({ wiggle: true });
+					});
+					return;
+				}
+
+				const { dir } = this.get();
+				const resolved = path.resolve(dir, basename);
+
+				if (item.type === 'file') {
+					fs.writeFileSync(resolved, '');
+				} else {
+					fs.mkdirSync(resolved, '');
+				}
+
+				this.set({ creating: false });
+				this.store.set({ selectedFile: resolved });
+			},
+
+			validate(value) {
+				const { dir, creating } = this.get();
+
+				const resolved = path.resolve(dir, value);
+
+				if (fs.existsSync(resolved)) {
+					creating.error = `<span>already exists</span>`;
+				} else {
+					// TODO check the name itself is valid
+					creating.error = null;
+				}
+
+				this.set({ creating });
 			}
 		}
 	};

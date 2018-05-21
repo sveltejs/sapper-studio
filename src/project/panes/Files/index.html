@@ -1,5 +1,7 @@
 <div class="files">
-	<Folder dir={$dir}/>
+	<ul>
+		<Folder dir={$dir} open root/>
+	</ul>
 </div>
 
 <style>
@@ -14,12 +16,28 @@
 	.files::-webkit-scrollbar {
 		background-color: transparent;
 	}
+
+	ul {
+		padding: 0;
+		margin: 0;
+		list-style: none;
+	}
 </style>
 
 <script>
 	export default {
 		components: {
 			Folder: './Folder.html'
+		},
+
+		methods: {
+			newFile() {
+				console.log('creating new file...');
+			},
+
+			newDir() {
+				console.log('creating new dir...');
+			}
 		}
 	};
 </script>

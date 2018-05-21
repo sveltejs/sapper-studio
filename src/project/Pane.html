@@ -3,6 +3,7 @@
 		<Chooser
 			bind:selected
 			focused={pane === $focusedPane}
+			on:action="action(event)"
 			{status}
 		/>
 	</div>
@@ -67,13 +68,19 @@
 
 		methods: {
 			focus() {
+				const { pane } = this.get();
+
 				this.store.set({
-					focusedPane: this
+					focusedPane: pane
 				});
 
 				if (this.refs.pane && this.refs.pane.focus) {
 					this.refs.pane.focus();
 				}
+			},
+
+			action(event) {
+				this.refs.pane[event.method]();
 			}
 		}
 	};

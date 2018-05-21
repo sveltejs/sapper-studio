@@ -1,5 +1,9 @@
 import App from './project/App.html';
 
-new App({
+const app = new App({
 	target: document.body
+});
+
+window.addEventListener('onbeforeunload', () => {
+	app.destroy();
 });
