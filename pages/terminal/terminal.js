@@ -51,6 +51,10 @@ function init() {
 	terminal.on('title', title => {
 		ipcRenderer.sendToHost('title', title);
 	});
+
+	window.addEventListener('resize', () => {
+		terminal.fit();
+	});
 }
 
 ipcRenderer.on('dir', (event, _dir) => {

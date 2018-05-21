@@ -10,6 +10,7 @@ import readJSON from './shared/readJSON';
 // be closed automatically when the JavaScript object is garbage collected.
 let launcherWindow;
 let projectWindow;
+let processes = {};
 
 const userData = app.getPath('userData');
 const recent = readJSON(path.join(userData, 'recent.json')) || [];
@@ -81,8 +82,22 @@ function openProject(dir) {
 	const watcher = reloadOnChange(projectWindow);
 
 	projectWindow.on('closed', function() {
+		// shut down child processes
+		Object.keys(processes).forEach(dir => {
+			processes[dir].kill();
+			processes[dir] = null;
+		});
+
 		projectWindow = null;
 		watcher.close();
+	});
+
+	projectWindow.on('reload', function() {
+		// shut down child processes
+		Object.keys(processes).forEach(dir => {
+			processes[dir].kill();
+			processes[dir] = null;
+		});
 	});
 
 	projectWindow.dir = dir;
@@ -156,8 +171,6 @@ ipcMain.on('open-existing-project', (event, dir) => {
 		});
 	}
 });
-
-const processes = {};
 
 ipcMain.on('start-app', (event, dir) => {
 	if (processes[dir]) {

@@ -155,9 +155,14 @@
 		},
 
 		{
-			name: 'Viewer',
-			fn: () => import('./panes/Viewer/index.html'),
-			actions: []
+			name: 'App',
+			fn: () => import('./panes/App/index.html'),
+			actions: [
+				{title: 'Back', icon: 'back', method: 'back' },
+				{title: 'Forward', icon: 'forward', method: 'forward' },
+				{title: 'Reload', icon: 'reload', method: 'reload' },
+				{title: 'Select page', icon: 'search', method: 'selectPage' }
+			]
 		},
 
 		{
