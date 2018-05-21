@@ -1,10 +1,10 @@
-<div class="pane" on:mousedown="$set({ focusedPane: pane })">
+<div class="pane" on:mousedown="focus()">
 	<div class="chooser-container">
 		<Chooser bind:selected focused={pane === $focusedPane}/>
 	</div>
 
 	<div class="pane-content">
-		<svelte:component this={Component}/>
+		<svelte:component ref:pane this={Component}/>
 	</div>
 </div>
 
@@ -20,7 +20,6 @@
 	.pane-content {
 		width: 100%;
 		height: 100%;
-		border: 2px solid transparent;
 	}
 
 	.chooser-container {
@@ -50,12 +49,22 @@
 		async onstate({ changed, current }) {
 			if (changed.selected) {
 				const token = this.token = {};
-				console.time('load component');
 				const Component = await current.selected.fn();
-				console.timeEnd('load component');
 
 				if (token === this.token) {
 					this.set({ Component });
+				}
+			}
+		},
+
+		methods: {
+			focus() {
+				this.store.set({
+					focusedPane: this
+				});
+
+				if (this.refs.pane && this.refs.pane.focus) {
+					this.refs.pane.focus();
 				}
 			}
 		}

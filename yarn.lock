@@ -996,6 +996,10 @@ find-up@^2.1.0:
   dependencies:
     locate-path "^2.0.0"
 
+fontfaceobserver@2.*:
+  version "2.0.13"
+  resolved "https://registry.yarnpkg.com/fontfaceobserver/-/fontfaceobserver-2.0.13.tgz#47adbb343261eda98cb44db2152196ff124d3221"
+
 for-in@^1.0.1, for-in@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/for-in/-/for-in-1.0.2.tgz#81068d295a8142ec0ac726c6e2200c30fb6d5e80"
@@ -1814,6 +1818,10 @@ mkdirp@^0.5.0, mkdirp@^0.5.1:
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
   dependencies:
     minimist "0.0.8"
+
+monaco-editor@^0.13.1:
+  version "0.13.1"
+  resolved "https://registry.yarnpkg.com/monaco-editor/-/monaco-editor-0.13.1.tgz#6b9ce20e4d1c945042d256825eb133cb23315a52"
 
 mri@^1.1.0:
   version "1.1.1"
@@ -3026,6 +3034,12 @@ xtend@~2.1.1:
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-2.1.2.tgz#6efecc2a4dad8e6962c4901b337ce7ba87b5d28b"
   dependencies:
     object-keys "~0.4.0"
+
+xterm-webfont@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/xterm-webfont/-/xterm-webfont-1.0.1.tgz#36f1dbdb1da08a5240267a60b895fa2b0afb9f04"
+  dependencies:
+    fontfaceobserver "2.*"
 
 xterm@^3.4.0:
   version "3.4.0"

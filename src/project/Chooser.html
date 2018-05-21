@@ -16,7 +16,7 @@
 
 <style>
 	.chooser {
-		--bbg: #444;
+		--bg: #444;
 		background-color: var(--bg);
 		/* border-bottom: 1px solid rgba(170,30,30,0.4); */
 		font-size: 14px;
@@ -90,8 +90,8 @@
 		{ name: 'Status', fn: () => import('./panes/Status/index.html') },
 		{ name: 'Terminal', fn: () => import('./panes/Terminal/index.html') },
 		{ name: 'Viewer', fn: () => import('./panes/Viewer/index.html') },
+		{ name: 'Editor', fn: () => import('./panes/Editor/index.html') },
 		{ name: 'Files', fn: () => import('./panes/Files/index.html') },
-		{ name: 'Editor', fn: () => import('./panes/Editor/index.html') }
 	];
 
 	let firstRun = true;

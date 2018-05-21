@@ -59,6 +59,8 @@
 
 	const win = remote.getCurrentWindow();
 
+	window.win = win;
+
 	export default {
 		components: {
 			Subdivide: '@sveltejs/svelte-subdivide'
@@ -68,7 +70,8 @@
 
 		data() {
 			return {
-				Pane
+				Pane,
+				fullscreen: win.isFullScreen()
 			};
 		},
 

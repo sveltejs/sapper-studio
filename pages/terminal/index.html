@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="../../assets/global.css">
+
+		<!-- TODO lazy-load this? -->
+		<link rel="stylesheet" href="../../assets/xterm.css">
+
+		<style>
+			main {
+				width: 100%;
+				height: 100%;
+				padding: 0.5em;
+				font-family: 'Fira Code';
+				background-color: #333;
+			}
+
+			main::-webkit-scrollbar {
+				background-color: transparent;
+			}
+
+			h1 {
+				color: white;
+				font-family: 'Fira Code';
+			}
+
+			.font-loader {
+				position: absolute;
+				color: transparent;
+				pointer-events: none;
+				font-family: 'Fira Code';
+			}
+
+			.xterm-viewport::-webkit-scrollbar {
+				background-color: transparent;
+			}
+		</style>
+	</head>
+
+	<body>
+		<main></main>
+
+		<!-- trigger font loading -->
+		<span class="font-loader" style="font-weight: 300;">x</span>
+		<span class="font-loader" style="font-weight: 400;">x</span>
+		<span class="font-loader" style="font-weight: 500;">x</span>
+		<span class="font-loader" style="font-weight: 700;">x</span>
+
+		<script>
+			require('./terminal.js')
+		</script>
+	</body>
+</html>

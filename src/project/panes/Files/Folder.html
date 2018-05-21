@@ -9,8 +9,8 @@
 				{/if}
 			</li>
 		{:else}
-			<li class="file {item.isDotfile ? 'hidden' : ''}">
-				<span>{item.basename}</span>
+			<li class="file {item.isDotfile ? 'hidden' : ''} {item.resolved === $selectedFile ? 'selected' : ''}">
+				<span on:click="$set({ selectedFile: item.resolved })">{item.basename}</span>
 			</li>
 		{/if}
 
@@ -56,6 +56,10 @@
 
 	.directory.open {
 		background-image: url('../assets/icons/chevrondown-white.svg');
+	}
+
+	.selected {
+		background-color: rgba(255,255,255,0.1);
 	}
 </style>
 

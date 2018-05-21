@@ -6,6 +6,14 @@ const store = new Store({
 	metaKey: /win/i.test(navigator.platform) ? 'Ctrl' : 'Cmd'
 });
 
+store.on('update', ({ changed, current }) => {
+	if (changed.selectedFile) {
+		if (current.lastSelectedEditor) {
+			current.lastSelectedEditor.load(current.selectedFile);
+		}
+	}
+});
+
 ipcRenderer.on('started-app', (event, port) => {
 	store.set({
 		running: true,
