@@ -47,6 +47,10 @@ function init() {
 	terminal.on('data', data => {
 		proc.write(data);
 	});
+
+	terminal.on('title', title => {
+		ipcRenderer.sendToHost('title', title);
+	});
 }
 
 ipcRenderer.on('dir', (event, _dir) => {

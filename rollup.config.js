@@ -12,7 +12,11 @@ export default [
 		},
 		plugins: [
 			resolve(),
-			svelte(),
+			svelte({
+				css: css => {
+					css.write('assets/svelte.css')
+				}
+			}),
 			commonjs(),
 			typescript({
 				typescript: require('typescript')

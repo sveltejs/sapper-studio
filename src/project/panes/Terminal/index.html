@@ -14,11 +14,29 @@
 
 <script>
 	export default {
+		data() {
+			return {
+				status: ''
+			};
+		},
+
 		oncreate() {
+			// TODO look into this binding bug
+			this.set({ status: '' });
+			this.set({ status: 'loading...' });
+
 			const webview = this.refs.container.querySelector('webview');
 			webview.addEventListener('dom-ready', () => {
 				const { dir } = this.store.get();
 				webview.send('dir', dir);
+			});
+
+			webview.addEventListener('ipc-message', (event) => {
+				if (event.channel === 'title') {
+					this.set({
+						status: event.args[0]
+					});
+				}
 			});
 		}
 	};

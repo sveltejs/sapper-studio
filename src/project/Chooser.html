@@ -10,7 +10,11 @@
 			{/each}
 		</div>
 
-		<span class="shadow-blocker">{options[0].name}</span>
+		<span class="shadow-blocker {selected === options[0] ? 'selected' : ''}">{options[0].name}</span>
+	{/if}
+
+	{#if status}
+		<span class="status">{status}</span>
 	{/if}
 </div>
 
@@ -57,11 +61,13 @@
 
 	.menu button {
 		display: block;
+		font-weight: normal;
 	}
 
 	.menu button.selected {
 		background: url(../assets/icons/check-white.svg) no-repeat 0.5em 50%;
 		background-size: 1em 1em;
+		font-weight: bold;
 	}
 
 	/* .menu button.selected::before {
@@ -73,14 +79,20 @@
 
 	.shadow-blocker {
 		position: absolute;
+		z-index: 2;
 		top: 0;
 		left: 1.5em;
 		display: block;
 		padding: 0.5em 1em 0.5em 0.5em;
+		font-weight: normal;
 		pointer-events: none;
 		width: 100%;
 		line-height: 1;
 		background: var(--bg);
+	}
+
+	.shadow-blocker.selected {
+		font-weight: bold;
 	}
 </style>
 

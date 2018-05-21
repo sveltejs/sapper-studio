@@ -1,10 +1,18 @@
 <div class="pane" on:mousedown="focus()">
 	<div class="chooser-container">
-		<Chooser bind:selected focused={pane === $focusedPane}/>
+		<Chooser
+			bind:selected
+			focused={pane === $focusedPane}
+			{status}
+		/>
 	</div>
 
 	<div class="pane-content">
-		<svelte:component ref:pane this={Component}/>
+		<svelte:component
+			this={Component}
+			ref:pane
+			bind:status
+		/>
 	</div>
 </div>
 
@@ -52,7 +60,7 @@
 				const Component = await current.selected.fn();
 
 				if (token === this.token) {
-					this.set({ Component });
+					this.set({ Component, status: null });
 				}
 			}
 		},

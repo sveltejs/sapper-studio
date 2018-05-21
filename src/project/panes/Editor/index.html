@@ -53,17 +53,13 @@
 		methods: {
 			load(file) {
 				this.webview.send('file', file);
-				// const value = fs.readFileSync(file, 'utf-8');
-				// const ext = path.extname(file);
-				// const lang = languages[ext] || ext.slice(1);
 
-				// this.editor.setValue(value);
-				// monaco.editor.setModelLanguage(this.editor.getModel(), lang);
+				const { dir } = this.store.get();
+				const relative = path.relative(dir, file);
+				this.set({ status: relative });
 			},
 
 			focus() {
-				console.log('focused editor');
-
 				this.store.set({
 					lastSelectedEditor: this
 				});
