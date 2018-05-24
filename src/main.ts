@@ -177,19 +177,20 @@ ipcMain.on('start-app', (event, dir) => {
 		throw new Error(`Already running: ${dir}`);
 	}
 
-	// for now, just run `sapper dev`. ultimately it would be advantageous
-	// to create APIs in Sapper that allow us to do this more directly
-	const sapper = path.resolve(dir, 'node_modules/.bin/sapper');
-	const proc = child_process.spawn(sapper, [`dev`], {
+	const worker = path.resolve(__dirname, '../workers/sapper-dev.js');
+	const proc = child_process.fork(worker, [], {
 		cwd: dir
 	});
 
-	proc.stdout.on('data', data => {
-		data = data.toString();
+	// TODO access stdout/stderr
 
-		const match =  /Listening on http:\/\/localhost:(\d+)/.exec(data);
-		if (match) {
-			event.sender.send('started-app', match[1]);
+	proc.on('message', message => {
+		if (message.type === 'build') {
+			console.log(`built ${message.event.type}`);
+		}
+
+		if (message.type === 'ready') {
+			event.sender.send('started-app', message.port);
 		}
 	});
 
