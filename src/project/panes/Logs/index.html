@@ -22,17 +22,26 @@
 
 		oncreate() {
 			const webview = this.refs.container.querySelector('webview');
-			webview.addEventListener('dom-ready', () => {
-				const { dir } = this.store.get();
-				webview.send('dir', dir);
-			});
 
-			webview.addEventListener('ipc-message', (event) => {
-				if (event.channel === 'title') {
-					this.set({
-						status: event.args[0]
+			webview.addEventListener('dom-ready', () => {
+				const { combined } = this.store.get();
+
+				webview.send('buffered', combined);
+
+				const handler = data => {
+					webview.send('data', data);
+				};
+
+				const listeners = [
+					this.store.on('stdout', handler),
+					this.store.on('stderr', handler)
+				];
+
+				this.on('destroy', () => {
+					listeners.forEach(listener => {
+						listener.cancel();
 					});
-				}
+				});
 			});
 		}
 	};

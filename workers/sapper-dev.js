@@ -11,11 +11,11 @@ watcher.on('ready', event => {
 	});
 
 	event.process.stdout.on('data', data => {
-		process.stdout.write('stdout' + data);
+		process.stdout.write(data);
 	});
 
 	event.process.stderr.on('data', data => {
-		process.stderr.write('stderr' + data);
+		process.stderr.write(data);
 	});
 });
 

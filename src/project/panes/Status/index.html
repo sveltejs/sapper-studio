@@ -1,6 +1,6 @@
 {#if $running}
 	<p>running on <a href="http://localhost:{$port}">localhost:{$port}</a></p>
-	<button on:click="$send('stop-app', $dir)">stop</button>
+	<button on:click="$stopDev()">stop</button>
 {:else}
-	<button on:click="$send('start-app', $dir)">start</button>
+	<button on:click="$startDev()">start</button>
 {/if}

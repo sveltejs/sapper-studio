@@ -10,7 +10,7 @@
 			{/each}
 		</div>
 
-		<span class="shadow-blocker {selected === options[0] ? 'selected' : ''}">{options[0].name}</span>
+		<!-- <div class="shadow-blocker"></div> -->
 	{/if}
 
 	{#if status}
@@ -69,17 +69,24 @@
 		background-color: var(--bg);
 		box-shadow: 2px 2px 2px rgba(0,0,0,0.1);
 		border-radius: 2px;
+		z-index: 2;
 	}
 
 	.menu button {
 		display: block;
 		font-weight: normal;
+		width: 100%;
+		text-align: left;
 	}
 
 	.menu button.selected {
 		background: url(../assets/icons/check-white.svg) no-repeat 0.5em 50%;
 		background-size: 1em 1em;
 		font-weight: bold;
+	}
+
+	.menu button:hover {
+		background-color: #777;
 	}
 
 	/* .menu button.selected::before {
@@ -89,22 +96,16 @@
 		left: 0.5em;
 	} */
 
-	.shadow-blocker {
+	.menu::after {
 		position: absolute;
-		z-index: 2;
+		z-index: 3;
 		top: 0;
-		left: 1.5em;
+		left: 20em;
 		display: block;
-		padding: 0.5em 1em 0.5em 0.5em;
-		font-weight: normal;
 		pointer-events: none;
-		width: 100%;
-		line-height: 1;
+		width: 1em;
+		height: 2em;
 		background: var(--bg);
-	}
-
-	.shadow-blocker.selected {
-		font-weight: bold;
 	}
 
 	.actions {
@@ -161,7 +162,8 @@
 				{title: 'Back', icon: 'back', method: 'back' },
 				{title: 'Forward', icon: 'forward', method: 'forward' },
 				{title: 'Reload', icon: 'reload', method: 'reload' },
-				{title: 'Select page', icon: 'search', method: 'selectPage' }
+				{title: 'Edit page', icon: 'edit', method: 'editPage' },
+				{title: 'Edit element', icon: 'crosshairs', method: 'editElement' }
 			]
 		},
 
@@ -179,6 +181,12 @@
 				{ title: 'New directory', icon: 'newdir', method: 'newDir' }
 			]
 		},
+
+		{
+			name: 'Server logs',
+			fn: () => import('./panes/logs/index.html'),
+			actions: []
+		}
 	];
 
 	let firstRun = true;

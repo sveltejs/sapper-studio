@@ -2,12 +2,11 @@ const { Terminal } = require('xterm');
 const { ipcRenderer } = require('electron');
 const fit = require('xterm/lib/addons/fit/fit');
 const WebfontLoader = require('xterm-webfont');
-const pty = require('node-pty');
 const defaultShell = require('default-shell');
 
 let proc;
 let terminal;
-let dir;
+let buffered = null;
 let ready;
 
 Terminal.applyAddon(fit);
@@ -20,49 +19,36 @@ terminal = new Terminal({
 	fontFamily: 'Fira Code',
 	fontWeight: 300,
 	fontSize: 14,
+
 	theme: {
 		background: '#333'
 	}
 });
 
 function init() {
-	proc = pty.spawn(defaultShell, ['--login'], {
-		name: 'xterm-color',
-		cols: 80,
-		rows: 40,
-		cwd: dir,
-		env: process.env
-	});
-
-	proc.on('data', data => {
-		terminal.write(data);
-	});
-
-	terminal.on('resize', ({ cols, rows }) => {
-		proc.resize(cols, Math.max(rows, 10));
-	});
-
 	terminal.fit();
-
-	terminal.on('data', data => {
-		proc.write(data);
-	});
-
-	terminal.on('title', title => {
-		ipcRenderer.sendToHost('title', title);
-	});
 
 	window.addEventListener('resize', () => {
 		terminal.fit();
 	});
+
+	terminal.write(buffered.replace(/\n/gm, '\r\n'));
 }
 
-ipcRenderer.on('dir', (event, _dir) => {
-	dir = _dir;
+ipcRenderer.on('buffered', (event, _buffered) => {
+	buffered = _buffered;
 	if (ready) init();
+});
+
+ipcRenderer.on('data', (event, data) => {
+	if (ready) {
+		terminal.write(data.replace(/\n/gm, '\r\n'));
+	} else {
+		buffered += data;
+	}
 });
 
 terminal.loadWebfontAndOpen(document.querySelector('main')).then(() => {
 	ready = true;
-	if (dir) init();
+	if (buffered !== null) init();
 });

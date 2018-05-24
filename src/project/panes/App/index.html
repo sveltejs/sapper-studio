@@ -2,7 +2,7 @@
 	<webview ref:wv autosize src="http://localhost:{$port}"></webview>
 {:else}
 	<div class="centered">
-		<button disabled={starting} on:click="start($dir)">{starting ? 'Starting...' : 'Start app'}</button>
+		<button disabled={$startingDev} on:click="$startDev()">{$startingDev ? 'Starting...' : 'Start app'}</button>
 	</div>
 {/if}
 
@@ -55,30 +55,27 @@
 			this.on('state', ({ changed, current }) => {
 				if (changed.$port && !current.$port) {
 					if (this.refs.wv) {
-						this.refs.wv.removeEventListener('did-navigate', handler);
+						this.refs.wv.removeEventListener('did-navigate-in-page', handler);
 					}
 				}
 			});
 
 			this.on('update', ({ changed, current }) => {
 				if (changed.$port && current.$port) {
-					this.refs.wv.addEventListener('did-navigate', handler);
+					this.refs.wv.addEventListener('did-navigate-in-page', handler);
 				}
 			});
 
 			this.on('destroy', () => {
 				if (this.refs.wv) {
-					this.refs.wv.removeEventListener('did-navigate', handler);
+					this.refs.wv.removeEventListener('did-navigate-in-page', handler);
 				}
 			});
 		},
 
 		methods: {
 			start(dir) {
-				ipcRenderer.send('start-app', dir);
-				this.set({
-					starting: true
-				});
+				this.store.startDev();
 			}
 		}
 	};
