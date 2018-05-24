@@ -30,6 +30,16 @@
 			Folder: './Folder.html'
 		},
 
+		data() {
+			return {
+				status: '',
+				actions: [
+					{ title: 'New file', icon: 'newfile', method: 'newFile' },
+					{ title: 'New directory', icon: 'newdir', method: 'newDir' }
+				]
+			}
+		},
+
 		methods: {
 			newFile() {
 				console.log('creating new file...');

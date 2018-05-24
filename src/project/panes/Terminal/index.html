@@ -16,15 +16,12 @@
 	export default {
 		data() {
 			return {
-				status: ''
+				status: 'loading...',
+				actions: []
 			};
 		},
 
 		oncreate() {
-			// TODO look into this binding bug
-			this.set({ status: '' });
-			this.set({ status: 'loading...' });
-
 			const webview = this.refs.container.querySelector('webview');
 			webview.addEventListener('dom-ready', () => {
 				const { dir } = this.store.get();

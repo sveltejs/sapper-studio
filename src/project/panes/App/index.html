@@ -38,6 +38,19 @@
 	import { ipcRenderer } from 'electron';
 
 	export default {
+		data() {
+			return {
+				status: '',
+				actions: [
+					{title: 'Back', icon: 'back', method: 'back' },
+					{title: 'Forward', icon: 'forward', method: 'forward' },
+					{title: 'Reload', icon: 'reload', method: 'reload' },
+					{title: 'Edit page', icon: 'edit', method: 'editPage' },
+					{title: 'Edit element', icon: 'crosshairs', method: 'editElement' }
+				]
+			}
+		},
+
 		oncreate() {
 			let listener;
 

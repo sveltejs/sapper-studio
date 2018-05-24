@@ -5,6 +5,7 @@
 			focused={pane === $focusedPane}
 			on:action="action(event)"
 			{status}
+			{actions}
 		/>
 	</div>
 
@@ -13,6 +14,7 @@
 			this={Component}
 			ref:pane
 			bind:status
+			bind:actions
 		/>
 	</div>
 </div>
@@ -61,7 +63,11 @@
 				const Component = await current.selected.fn();
 
 				if (token === this.token) {
-					this.set({ Component, status: null });
+					this.set({
+						status: undefined,
+						actions: undefined,
+						Component
+					});
 				}
 			}
 		},

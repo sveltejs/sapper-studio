@@ -17,8 +17,8 @@
 		<span class="status">{status}</span>
 	{/if}
 
-	<div class="actions" style="width: {selected.actions.length * 2}em">
-		{#each selected.actions as action}
+	<div class="actions" style="width: {actions ? actions.length * 2 : 0}em">
+		{#each (actions || []) as action}
 			<button
 				class="action"
 				title={action.title}
@@ -139,53 +139,37 @@
 	const options = [
 		{
 			name: 'Welcome screen',
-			fn: () => import('./panes/Welcome/index.html'),
-			actions: []
+			fn: () => import('./panes/Welcome/index.html')
 		},
 
 		{
-			name: 'Status',
-			fn: () => import('./panes/Status/index.html'),
-			actions: []
+			name: 'Controls',
+			fn: () => import('./panes/Controls/index.html')
 		},
 
 		{
 			name: 'Terminal',
-			fn: () => import('./panes/Terminal/index.html'),
-			actions: []
+			fn: () => import('./panes/Terminal/index.html')
 		},
 
 		{
 			name: 'App',
-			fn: () => import('./panes/App/index.html'),
-			actions: [
-				{title: 'Back', icon: 'back', method: 'back' },
-				{title: 'Forward', icon: 'forward', method: 'forward' },
-				{title: 'Reload', icon: 'reload', method: 'reload' },
-				{title: 'Edit page', icon: 'edit', method: 'editPage' },
-				{title: 'Edit element', icon: 'crosshairs', method: 'editElement' }
-			]
+			fn: () => import('./panes/App/index.html')
 		},
 
 		{
 			name: 'Editor',
-			fn: () => import('./panes/Editor/index.html'),
-			actions: []
+			fn: () => import('./panes/Editor/index.html')
 		},
 
 		{
 			name: 'Files',
-			fn: () => import('./panes/Files/index.html'),
-			actions: [
-				{ title: 'New file', icon: 'newfile', method: 'newFile' },
-				{ title: 'New directory', icon: 'newdir', method: 'newDir' }
-			]
+			fn: () => import('./panes/Files/index.html')
 		},
 
 		{
 			name: 'Server logs',
-			fn: () => import('./panes/logs/index.html'),
-			actions: []
+			fn: () => import('./panes/logs/index.html')
 		}
 	];
 
@@ -193,7 +177,7 @@
 
 	export default {
 		data() {
-			const selected = firstRun ? options[3] : options[5];
+			const selected = firstRun ? options[1] : options[5];
 			firstRun = false;
 
 			return {

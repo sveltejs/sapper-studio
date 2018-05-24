@@ -22,7 +22,8 @@ class StudioStore extends Store {
 		}
 
 		this.set({
-			startingDev: true
+			startingDev: true,
+			mode: 'dev'
 		});
 
 		const workerPath = path.resolve(__dirname, '../workers/sapper-dev.js');
@@ -96,13 +97,13 @@ class StudioStore extends Store {
 
 	stopDev() {
 		if (devWorker) {
-			throw new Error('Not running');
+			devWorker.kill();
 		}
 
-		devWorker.kill();
 		this.set({
 			startingDev: false,
-			running: false
+			running: false,
+			mode: null
 		});
 	}
 }

@@ -1,0 +1,89 @@
+<div class="controls">
+	<section class="">
+		<h2>Dev</h2>
+
+		<div>
+			<button
+				on:click="toggleDev()"
+				class="{$running || $startingDev ? 'pause' : 'play'}"
+			></button>
+			{#if $running}
+				<!-- TODO link should open browser -->
+				<span><a target="_blank" href="http://localhost:{$port}">localhost:{$port}</a></span>
+			{:elseif $startingDev}
+				<span>starting...</span>
+			{:else}
+				<span on:click="$startDev()">click to start</span>
+			{/if}
+		</div>
+	</section>
+
+	<section class="{$mode === 'dev' ? 'disabled' : ''}">
+		<h2>Build</h2>
+	</section>
+
+	<section class="{$mode === 'dev' ? 'disabled' : ''}">
+		<h2>Export</h2>
+	</section>
+</div>
+
+<style>
+	.controls {
+		padding: 0.5em;
+	}
+
+	section {
+		padding: 0.5em 0;
+		border-bottom: 1px solid rgba(255,255,255,0.1);
+	}
+
+	section:last-child {
+		border-bottom: none;
+	}
+
+	section.disabled {
+		filter: grayscale(1);
+		opacity: 0.6;
+	}
+
+	h2 {
+		font-size: 14px;
+		font-weight: normal;
+		text-transform: uppercase;
+		color: #999;
+	}
+
+	button.play, button.pause {
+		width: 2em;
+		height: 2em;
+		background: no-repeat 50% 50%;
+		background-size: 100% 100%;
+	}
+
+	button.play {
+		background-image: url(../assets/icons/play-purple.svg);
+	}
+
+	button.pause {
+		background-image: url(../assets/icons/pause-purple.svg);
+	}
+
+	a {
+		color: #eee;
+	}
+</style>
+
+<script>
+	export default {
+		methods: {
+			toggleDev() {
+				const { running, startingDev } = this.store.get();
+				if (running || startingDev) {
+					this.store.stopDev();
+				} else {
+					this.store.startDev();
+				}
+			}
+		}
+	};
+</script>
