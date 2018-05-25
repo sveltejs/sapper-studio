@@ -21,6 +21,7 @@
 		{#each (actions || []) as action}
 			<button
 				class="action"
+				disabled={action.disabled}
 				title={action.title}
 				style="background-image: url(../assets/icons/{action.icon}-white.svg)"
 				on:click="fire('action', { method: action.method })"
@@ -132,6 +133,16 @@
 		padding: 0.5em;
 		background: no-repeat 50% 50%;
 		background-size: 20px;
+		opacity: 0.5;
+		transition: opacity 0.2s;
+	}
+
+	.action:hover {
+		opacity: 1;
+	}
+
+	.action:disabled {
+		opacity: 0.1;
 	}
 </style>
 

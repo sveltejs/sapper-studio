@@ -19,31 +19,39 @@
 <Status type='server' invalid={$invalid.server} stats={$serverStats}/>
 <Status type='service worker' invalid={$invalid.serviceworker} stats={$serviceworkerStats}/>
 
-<div class="detail">
-	{#if errors.length}
-		<h2 style="color: rgb(200,0,0)">{pl('error', errors.length)}</h2>
+{#if errors.length}
+	<div class="errors detail">
+		<h2 style="color: rgb(200,0,0)">
+			{pl('error', errors.length)}
+
+			{#if duplicateErrors}
+				<small>{pl('duplicate error', duplicateErrors)} not shown</small>
+			{/if}
+		</h2>
+
 		{#each errors.filter(x => !x.duplicate) as error}
 			<a on:click="reveal(event, error)" href={error.file}>{error.file}</a>
 			<pre>{error.message}</pre>
 		{/each}
+	</div>
+{/if}
 
-		{#if duplicateErrors}
-			<p>{pl('duplicate error', duplicateErrors)} not shown</p>
-		{/if}
-	{/if}
+{#if warnings.length}
+	<div class="warnings detail">
+		<h2 style="color: rgb(200,200,0)">
+			{pl('warning', warnings.length)}
 
-	{#if warnings.length}
-		<h2 style="color: rgb(200,200,0)">{pl('warning', warnings.length)}</h2>
+			{#if duplicateWarnings}
+				<small>{pl('duplicate warning', duplicateWarnings)} not shown</small>
+			{/if}
+		</h2>
+
 		{#each warnings.filter(x => !x.duplicate) as warning}
 			<a on:click="reveal(event, warning)" href={warning.file}>{warning.file}</a>
 			<pre>{warning.message}</pre>
 		{/each}
-
-		{#if duplicateWarnings}
-			<p>{pl('duplicate warning', duplicateWarnings)} not shown</p>
-		{/if}
-	{/if}
-</div>
+	</div>
+{/if}
 
 <style>
 	.button-container {
@@ -69,12 +77,30 @@
 	h2 {
 		font-size: 16px;
 		margin: 1em 0 0.5em 0;
+		line-height: 1.2;
+	}
+
+	small {
+		display: block;
+		font-weight: normal;
 	}
 
 	pre {
 		font-family: 'Fira Code';
 		font-size: 14px;
-		color: #bbb;
+		color: #bb8;
+	}
+
+	.warnings pre {
+		color: #bb8;
+	}
+
+	.errors pre {
+		color: #b88;
+	}
+
+	.detail a {
+		font-weight: bold;
 	}
 </style>
 

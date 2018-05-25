@@ -40,10 +40,15 @@
 	export default {
 		data() {
 			return {
-				status: '',
-				actions: [
-					{title: 'Back', icon: 'back', method: 'back' },
-					{title: 'Forward', icon: 'forward', method: 'forward' },
+				status: ''
+			}
+		},
+
+		computed: {
+			actions: ({ canGoBack, canGoForward }) => {
+				return [
+					{title: 'Back', icon: 'back', method: 'back', disabled: !canGoBack },
+					{title: 'Forward', icon: 'forward', method: 'forward', disabled: !canGoForward },
 					{title: 'Reload', icon: 'reload', method: 'reload' },
 					{title: 'Edit page', icon: 'edit', method: 'editPage' },
 					{title: 'Edit element', icon: 'crosshairs', method: 'editElement' }
@@ -55,6 +60,7 @@
 			let listener;
 
 			const handler = event => {
+				const { actions } = this.get();
 				const { port } = this.store.get();
 				const url = new URL(event.url);
 
@@ -62,7 +68,10 @@
 					? url.pathname
 					: url.host + url.pathname;
 
-				this.set({ status });
+				const canGoBack = this.refs.wv.canGoBack();
+				const canGoForward = this.refs.wv.canGoForward();
+
+				this.set({ status, canGoBack, canGoForward });
 			};
 
 			this.on('state', ({ changed, current }) => {
@@ -89,6 +98,26 @@
 		methods: {
 			start(dir) {
 				this.store.startDev();
+			},
+
+			back() {
+				if (this.refs.wv) this.refs.wv.goBack();
+			},
+
+			forward() {
+				if (this.refs.wv) this.refs.wv.goForward();
+			},
+
+			reload() {
+				if (this.refs.wv) this.refs.wv.reload();
+			},
+
+			editPage() {
+				console.log('TODO edit page')
+			},
+
+			editElement() {
+				console.log('TODO edit element')
 			}
 		}
 	};
