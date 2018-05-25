@@ -62,7 +62,6 @@
 	export default {
 		computed: {
 			status: ({ invalid, stats }) => {
-				console.log(stats);
 				if (invalid || !stats) return 'invalid';
 				if (stats.errors.length) return 'error';
 				if (stats.warnings.length) return 'warning';

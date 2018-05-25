@@ -3,7 +3,7 @@
 	on:contextmenu="showDirectoryMenu(event)"
 >
 	{#if !root}
-		<span on:click="set({ open: !open })">{basename} {open}</span>
+		<span on:click="set({ open: !open })">{basename}</span>
 	{/if}
 
 	{#if open}
@@ -264,8 +264,6 @@
 						if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
 						return a.basename < b.basename ? -1 : 1;
 					});
-
-				console.log(items);
 
 				this.set({ items });
 			},

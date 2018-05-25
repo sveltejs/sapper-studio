@@ -30,17 +30,10 @@
 
 			this.webview = this.refs.container.querySelector('webview');
 
-			// this.webview = document.createElement('webview');
-			// this.webview.nodeintegration = true;
-			// this.webview.src = `file://${path.resolve(__dirname, '../pages/editor/index.html')}`;
-
-			// console.log(this.refs);
-
 			this.webview.addEventListener('dom-ready', () => {
 				if (this.destroyed) return;
 
 				const { selectedFile } = this.store.get();
-				console.log({ selectedFile });
 				if (selectedFile) this.load(selectedFile);
 			});
 
@@ -62,12 +55,12 @@
 
 		methods: {
 			load(file) {
+				console.log('loading', file);
 				this.webview.send('file', file);
 
 				const { dir } = this.store.get();
 				const relative = path.relative(dir, file);
 
-				this.set({ status: '' }); // TODO binding bug
 				this.set({ status: relative });
 			},
 
@@ -78,7 +71,8 @@
 			},
 
 			locate(line, column) {
-				console.log('locating', line, column);
+				this.webview.focus();
+				this.webview.send('location', { line, column });
 			}
 		}
 	};

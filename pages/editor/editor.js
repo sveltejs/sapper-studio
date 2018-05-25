@@ -29,7 +29,7 @@ const languages = {
 };
 
 let editor;
-let initial;
+let initial = {};
 let currentFile;
 
 ipcRenderer.on('file', (event, file) => {
@@ -43,7 +43,17 @@ ipcRenderer.on('file', (event, file) => {
 		editor.setValue(value);
 		monaco.editor.setModelLanguage(editor.getModel(), lang);
 	} else {
-		initial = { value, lang };
+		initial.value = value;
+		initial.lang = lang;
+	}
+});
+
+ipcRenderer.on('location', (event, loc) => {
+	if (editor) {
+		editor.focus();
+		editor.setPosition({ column: loc.column + 1, lineNumber: loc.line });
+	} else {
+		initial.loc = loc;
 	}
 });
 
@@ -53,10 +63,14 @@ amdRequire.config({
 
 amdRequire(['vs/editor/editor.main'], function() {
 	editor = monaco.editor.create(container, {
-		value: initial ? initial.value : '// loading...',
-		language: initial ? initial.lang : 'javascript',
+		value: initial.value || '',
+		language: initial.lang || 'javascript',
 		theme: "vs-dark"
 	});
+
+	if (initial.loc) {
+		editor.setPosition({ column: loc.column, lineNumber: loc.line });
+	}
 
 	window.addEventListener('resize', () => {
 		editor.layout();
