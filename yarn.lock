@@ -2725,6 +2725,10 @@ supports-color@^5.3.0:
   dependencies:
     has-flag "^3.0.0"
 
+svelte-extras@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/svelte-extras/-/svelte-extras-2.0.2.tgz#2b7e2826b27c9bf3c12b745494f11be835dc7f69"
+
 svelte-transitions-draw@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/svelte-transitions-draw/-/svelte-transitions-draw-1.0.0.tgz#48426c5c2cf43a8d17c1118ace939a42f23cd91d"

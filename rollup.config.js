@@ -8,14 +8,17 @@ export default [
 		input: ['src/main.ts', 'src/launcher.ts', 'src/project.ts'],
 		output: {
 			dir: 'dist',
-			format: 'cjs'
+			format: 'cjs',
+			sourcemap: true
 		},
 		plugins: [
 			resolve(),
 			svelte({
 				css: css => {
 					css.write('assets/svelte.css')
-				}
+				},
+				nestedTransitions: true,
+				skipIntroByDefault: true
 			}),
 			commonjs(),
 			typescript({

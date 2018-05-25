@@ -1,0 +1,55 @@
+<div class="status">
+	<span class="indicator {status}">
+		{type}
+
+		{#if status === 'ok'}
+			<span class="duration">{stats.duration}</span>
+		{/if}
+	</span>
+</div>
+
+<style>
+	.indicator {
+		padding: 0 0 0 1.5em;
+	}
+
+	.indicator::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 1em;
+		height: 1em;
+		border-radius: 50%;
+	}
+
+	.invalid::before {
+		background-color: #999;
+	}
+
+	.error::before {
+		background-color: rgb(200,0,0);
+	}
+
+	.warning::before {
+		background-color: rgb(200,200,0);
+	}
+
+	.ok::before {
+		background-color: rgb(0,200,0);
+	}
+</style>
+
+<script>
+	export default {
+		computed: {
+			status: ({ invalid, stats }) => {
+				console.log(stats);
+				if (invalid || !stats) return 'invalid';
+				if (stats.errors.length) return 'error';
+				if (stats.warnings.length) return 'warning';
+				return 'ok'
+			}
+		}
+	};
+</script>

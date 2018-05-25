@@ -1,0 +1,36 @@
+<button
+	on:click="toggleDev()"
+	class="{$runningDev || $startingDev ? 'pause' : 'play'}"
+></button>
+
+{#if $runningDev}
+	<!-- TODO link should open browser -->
+	<span><a target="_blank" href="http://localhost:{$port}">localhost:{$port}</a></span>
+{:elseif $startingDev}
+	<span>starting...</span>
+{:else}
+	<span on:click="$startDev()">click to start</span>
+{/if}
+
+<Report type='client' invalid={$invalid.client} stats={$clientStats}/>
+<Report type='server' invalid={$invalid.server} stats={$serverStats}/>
+<Report type='service worker' invalid={$invalid.serviceworker} stats={$serviceworkerStats}/>
+
+<script>
+	export default {
+		components: {
+			Report: './Report.html'
+		},
+
+		methods: {
+			toggleDev() {
+				const { running, startingDev } = this.store.get();
+				if (running || startingDev) {
+					this.store.stopDev();
+				} else {
+					this.store.startDev();
+				}
+			}
+		}
+	};
+</script>

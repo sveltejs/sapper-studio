@@ -9,7 +9,9 @@ let devWorker;
 
 class StudioStore extends Store {
 	constructor(data) {
-		super(data);
+		super(Object.assign({
+			invalid: {}
+		}, data));
 	}
 
 	send(message, data) {
@@ -57,11 +59,15 @@ class StudioStore extends Store {
 		devWorker.on('message', message => {
 			switch (message.type) {
 				case 'build':
-					console.log(`built ${message.event.type}`);
+					this.set({
+						[`${message.event.type}Stats`]: message.event.webpack_stats
+					});
 					break;
 
 				case 'invalid':
-					console.log(`invalid ${message.event.type}`);
+					this.set({
+						invalid: message.event.invalid
+					});
 					break;
 
 				case 'fatal':
@@ -77,10 +83,10 @@ class StudioStore extends Store {
 						console.log('message', message.port);
 						this.set({
 							startingDev: false,
+							runningDev: true,
 							stdout: '',
 							stderr: '',
 							combined: '', // TODO show 'restarted' message as appropriate
-							running: true,
 							port: message.port
 						});
 					});
@@ -102,7 +108,7 @@ class StudioStore extends Store {
 
 		this.set({
 			startingDev: false,
-			running: false,
+			runningDev: false,
 			mode: null
 		});
 	}
