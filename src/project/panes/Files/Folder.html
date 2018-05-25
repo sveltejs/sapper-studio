@@ -3,7 +3,7 @@
 	on:contextmenu="showDirectoryMenu(event)"
 >
 	{#if !root}
-		<span on:click="set({ open: !open })">{basename}</span>
+		<span on:click="set({ open: !open })">{basename} {open}</span>
 	{/if}
 
 	{#if open}
@@ -133,7 +133,8 @@
 	}
 
 	.selected {
-		background-color: rgba(255,255,255,0.1);
+		/* background-color: rgba(255,255,255,0.1); */
+		color: rgba(170,120,255,1);
 	}
 </style>
 
@@ -263,6 +264,8 @@
 						if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
 						return a.basename < b.basename ? -1 : 1;
 					});
+
+				console.log(items);
 
 				this.set({ items });
 			},

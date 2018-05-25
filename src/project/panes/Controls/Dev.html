@@ -1,34 +1,153 @@
-<button
-	on:click="toggleDev()"
-	class="{$runningDev || $startingDev ? 'pause' : 'play'}"
-></button>
+<div class="button-container">
+	<button
+		on:click="toggleDev()"
+		class="{$runningDev || $startingDev ? 'pause' : 'play'}"
+	>{$runningDev || $startingDev ? 'stop' : 'start'}</button>
 
-{#if $runningDev}
-	<!-- TODO link should open browser -->
-	<span><a target="_blank" href="http://localhost:{$port}">localhost:{$port}</a></span>
-{:elseif $startingDev}
-	<span>starting...</span>
-{:else}
-	<span on:click="$startDev()">click to start</span>
-{/if}
+	<span class="status">
+		{#if $runningDev}
+			running on <a on:click="open(event)" href="http://localhost:{$port}">localhost:{$port}</a>
+		{:elseif $startingDev}
+			starting...
+		{:else}
+			waiting
+		{/if}
+	</span>
+</div>
 
-<Report type='client' invalid={$invalid.client} stats={$clientStats}/>
-<Report type='server' invalid={$invalid.server} stats={$serverStats}/>
-<Report type='service worker' invalid={$invalid.serviceworker} stats={$serviceworkerStats}/>
+<Status type='client' invalid={$invalid.client} stats={$clientStats}/>
+<Status type='server' invalid={$invalid.server} stats={$serverStats}/>
+<Status type='service worker' invalid={$invalid.serviceworker} stats={$serviceworkerStats}/>
+
+<div class="detail">
+	{#if errors.length}
+		<h2 style="color: rgb(200,0,0)">{pl('error', errors.length)}</h2>
+		{#each errors.filter(x => !x.duplicate) as error}
+			<a on:click="reveal(event, error)" href={error.file}>{error.file}</a>
+			<pre>{error.message}</pre>
+		{/each}
+
+		{#if duplicateErrors}
+			<p>{pl('duplicate error', duplicateErrors)} not shown</p>
+		{/if}
+	{/if}
+
+	{#if warnings.length}
+		<h2 style="color: rgb(200,200,0)">{pl('warning', warnings.length)}</h2>
+		{#each warnings.filter(x => !x.duplicate) as warning}
+			<a on:click="reveal(event, warning)" href={warning.file}>{warning.file}</a>
+			<pre>{warning.message}</pre>
+		{/each}
+
+		{#if duplicateWarnings}
+			<p>{pl('duplicate warning', duplicateWarnings)} not shown</p>
+		{/if}
+	{/if}
+</div>
+
+<style>
+	.button-container {
+		width: 100%;
+		margin: 0 0 0.4em 0;
+	}
+
+	.button-container button {
+		/* position: absolute; */
+		left: 0;
+		display: block;
+	}
+
+	.status {
+		font-size: 14px;
+		color: #999;
+	}
+
+	a {
+		color: #bbb;
+	}
+
+	h2 {
+		font-size: 16px;
+		margin: 1em 0 0.5em 0;
+	}
+
+	pre {
+		font-family: 'Fira Code';
+		font-size: 14px;
+		color: #bbb;
+	}
+</style>
 
 <script>
+	import * as path from 'path';
+	import { shell } from 'electron';
+
+
 	export default {
 		components: {
-			Report: './Report.html'
+			Status: './Status.html'
+		},
+
+		computed: {
+			errors: ({ $clientStats, $serverStats, $serviceworkerStats }) => {
+				return [].concat(
+					$clientStats ? $clientStats.errors : [],
+					$serverStats ? $serverStats.errors : [],
+					$serviceworkerStats ? $serviceworkerStats.errors : [],
+				);
+			},
+
+			duplicateErrors: ({ errors }) => {
+				return errors.filter(x => x.duplicate).length;
+			},
+
+			warnings: ({ $clientStats, $serverStats, $serviceworkerStats }) => {
+				return [].concat(
+					$clientStats ? $clientStats.warnings : [],
+					$serverStats ? $serverStats.warnings : [],
+					$serviceworkerStats ? $serviceworkerStats.warnings : [],
+				);
+			},
+
+			duplicateWarnings: ({ warnings }) => {
+				return warnings.filter(x => x.duplicate).length;
+			}
+		},
+
+		helpers: {
+			pl(word, count) {
+				return count === 1
+					? `${count} ${word}`
+					: `${count} ${word}s`;
+			}
 		},
 
 		methods: {
 			toggleDev() {
-				const { running, startingDev } = this.store.get();
-				if (running || startingDev) {
+				const { runningDev, startingDev } = this.store.get();
+				if (runningDev || startingDev) {
 					this.store.stopDev();
 				} else {
 					this.store.startDev();
+				}
+			},
+
+			open(event) {
+				event.preventDefault();
+				shell.openExternal(event.target.href);
+			},
+
+			reveal(event, info) {
+				event.preventDefault();
+
+				const { lastSelectedEditor, dir } = this.store.get();
+
+				this.store.set({
+					selectedFile: path.resolve(dir, info.file)
+				});
+
+				if (lastSelectedEditor) {
+					lastSelectedEditor.locate(info.line, info.column);
 				}
 			}
 		}

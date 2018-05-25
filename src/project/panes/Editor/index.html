@@ -75,6 +75,10 @@
 				this.store.set({
 					lastSelectedEditor: this
 				});
+			},
+
+			locate(line, column) {
+				console.log('locating', line, column);
 			}
 		}
 	};

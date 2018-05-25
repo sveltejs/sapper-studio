@@ -51,18 +51,22 @@
 	}
 
 	.controls :global(button).play, :global(button).pause {
-		width: 2em;
+		width: 8em;
 		height: 2em;
-		background: no-repeat 50% 50%;
-		background-size: 100% 100%;
+		background: rgba(170,120,255,1) no-repeat 0.5em 50%;
+		background-size: 1em;
+		padding-left: 1.5em;
+		margin: 0 0 0.2em 0;
+		border-radius: 1em;
+		line-height: 1;
 	}
 
 	.controls :global(button).play {
-		background-image: url(../assets/icons/play-purple.svg);
+		background-image: url(../assets/icons/play-white.svg);
 	}
 
 	.controls :global(button).pause {
-		background-image: url(../assets/icons/pause-purple.svg);
+		background-image: url(../assets/icons/pause-white.svg);
 	}
 
 	.controls :global(a) {

@@ -60,7 +60,7 @@ class StudioStore extends Store {
 			switch (message.type) {
 				case 'build':
 					this.set({
-						[`${message.event.type}Stats`]: message.event.webpack_stats
+						[`${message.event.type.replace(' ', '')}Stats`]: message.event
 					});
 					break;
 
@@ -104,11 +104,13 @@ class StudioStore extends Store {
 	stopDev() {
 		if (devWorker) {
 			devWorker.kill();
+			devWorker = null;
 		}
 
 		this.set({
 			startingDev: false,
 			runningDev: false,
+			port: null,
 			mode: null
 		});
 	}
@@ -124,6 +126,7 @@ window.store = store;
 
 store.on('update', ({ changed, current }) => {
 	if (changed.selectedFile) {
+		console.log({ selectedFile: current.selectedFile });
 		if (current.lastSelectedEditor) {
 			current.lastSelectedEditor.load(current.selectedFile);
 		}
