@@ -34,7 +34,7 @@
 						class="file {item.isDotfile ? 'hidden' : ''} {item.resolved === $selectedFile ? 'selected' : ''}"
 					>
 						<span
-							on:click="$set({ selectedFile: item.resolved })"
+							on:click="$selectFile(item.resolved)"
 							on:contextmenu="showFileMenu(item, event)"
 						>{item.basename}</span>
 					</li>
@@ -397,7 +397,7 @@
 				}
 
 				this.set({ creating: false });
-				this.store.set({ selectedFile: resolved });
+				this.store.selectFile(resolved);
 			},
 
 			validate(value) {

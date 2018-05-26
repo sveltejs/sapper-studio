@@ -168,8 +168,9 @@
 
 				const { lastSelectedEditor, dir } = this.store.get();
 
-				this.store.set({
-					selectedFile: path.resolve(dir, info.file)
+				this.store.selectFile(path.resolve(dir, info.file), {
+					line: info.line,
+					column: info.column
 				});
 
 				if (lastSelectedEditor) {

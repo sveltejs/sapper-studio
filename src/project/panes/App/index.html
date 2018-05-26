@@ -35,7 +35,10 @@
 </style>
 
 <script>
+	import * as path from 'path';
 	import { ipcRenderer } from 'electron';
+	import relative from 'require-relative';
+	import glob from 'tiny-glob/sync';
 
 	export default {
 		data() {
@@ -45,13 +48,13 @@
 		},
 
 		computed: {
-			actions: ({ canGoBack, canGoForward }) => {
+			actions: ({ canGoBack, canGoForward, isOnSite }) => {
 				return [
 					{title: 'Back', icon: 'back', method: 'back', disabled: !canGoBack },
 					{title: 'Forward', icon: 'forward', method: 'forward', disabled: !canGoForward },
 					{title: 'Reload', icon: 'reload', method: 'reload' },
-					{title: 'Edit page', icon: 'edit', method: 'editPage' },
-					{title: 'Edit element', icon: 'crosshairs', method: 'editElement' }
+					{title: 'Edit page', icon: 'edit', method: 'editPage', disabled: !isOnSite },
+					{title: 'Edit element', icon: 'crosshairs', method: 'editElement', disabled: !isOnSite }
 				]
 			}
 		},
@@ -64,14 +67,16 @@
 				const { port } = this.store.get();
 				const url = new URL(event.url);
 
-				const status = url.host === `localhost:${port}`
+				const isOnSite = url.host === `localhost:${port}`;
+
+				const status = isOnSite
 					? url.pathname
 					: url.host + url.pathname;
 
 				const canGoBack = this.refs.wv.canGoBack();
 				const canGoForward = this.refs.wv.canGoForward();
 
-				this.set({ status, canGoBack, canGoForward });
+				this.set({ status, canGoBack, canGoForward, isOnSite });
 			};
 
 			this.on('state', ({ changed, current }) => {
@@ -112,8 +117,16 @@
 				if (this.refs.wv) this.refs.wv.reload();
 			},
 
-			editPage() {
-				console.log('TODO edit page')
+			async editPage() {
+				const { dir } = this.store.get();
+				const { find_page } = relative('sapper/api.js', dir);
+				const { status: pathname } = this.get(); // bit of a hack — proxy for pathname
+				const files = glob('**', { cwd: path.resolve(dir, 'routes'), filesOnly: true, dot: true });
+				const page = find_page(pathname, files);
+
+				if (page) {
+					this.store.selectFile(path.resolve(dir, 'routes', page));
+				}
 			},
 
 			editElement() {

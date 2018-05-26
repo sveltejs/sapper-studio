@@ -44,6 +44,7 @@
     "require-relative": "^0.8.7",
     "svelte-extras": "^2.0.2",
     "svelte-transitions": "^1.2.0",
+    "tiny-glob": "^0.2.1",
     "xterm": "^3.4.0",
     "xterm-webfont": "^1.0.1"
   }

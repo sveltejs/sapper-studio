@@ -14,6 +14,19 @@ class StudioStore extends Store {
 		}, data));
 	}
 
+	selectFile(file, loc) {
+		this.set({
+			selectedFile: file
+		});
+
+		const { lastSelectedEditor } = this.get();
+
+		if (lastSelectedEditor) {
+			lastSelectedEditor.load(file);
+			if (loc) lastSelectedEditor.locate(loc.line, loc.column);
+		}
+	}
+
 	send(message, data) {
 		ipcRenderer.send(message, data);
 	}
@@ -60,7 +73,12 @@ class StudioStore extends Store {
 			switch (message.type) {
 				case 'build':
 					this.set({
-						[`${message.event.type.replace(' ', '')}Stats`]: message.event
+						[`${message.event.type.replace(' ', '')}Stats`]: message.event,
+						invalid: {
+							client: false,
+							server: false,
+							serviceworker: false
+						}
 					});
 					break;
 
@@ -120,17 +138,6 @@ const store = new StudioStore({
 	dir,
 	metaKey: /win/i.test(navigator.platform) ? 'Ctrl' : 'Cmd',
 	combined: ''
-});
-
-window.store = store;
-
-store.on('update', ({ changed, current }) => {
-	if (changed.selectedFile) {
-		console.log({ selectedFile: current.selectedFile });
-		if (current.lastSelectedEditor) {
-			current.lastSelectedEditor.load(current.selectedFile);
-		}
-	}
 });
 
 export default store;
