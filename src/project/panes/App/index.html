@@ -62,7 +62,7 @@
 		oncreate() {
 			let listener;
 
-			const handler = event => {
+			const handleNav = event => {
 				const { actions } = this.get();
 				const { port } = this.store.get();
 				const url = new URL(event.url);
@@ -79,23 +79,35 @@
 				this.set({ status, canGoBack, canGoForward, isOnSite });
 			};
 
+			const handleFindElement = event => {
+				console.log('found element', event);
+			};
+
+			function addEventListeners(webview) {
+				webview.addEventListener('did-navigate-in-page', handleNav);
+			}
+
+			function removeEventListeners(webview) {
+				webview.removeEventListener('did-navigate-in-page', handleNav);
+			}
+
 			this.on('state', ({ changed, current }) => {
 				if (changed.$port && !current.$port) {
 					if (this.refs.wv) {
-						this.refs.wv.removeEventListener('did-navigate-in-page', handler);
+						removeEventListeners(this.refs.wv);
 					}
 				}
 			});
 
 			this.on('update', ({ changed, current }) => {
 				if (changed.$port && current.$port) {
-					this.refs.wv.addEventListener('did-navigate-in-page', handler);
+					addEventListeners(this.refs.wv);
 				}
 			});
 
 			this.on('destroy', () => {
 				if (this.refs.wv) {
-					this.refs.wv.removeEventListener('did-navigate-in-page', handler);
+					removeEventListeners(this.refs.wv);
 				}
 			});
 		},
@@ -130,7 +142,10 @@
 			},
 
 			editElement() {
-				console.log('TODO edit element')
+				if (!this.refs.wv) return;
+				this.refs.wv.executeJavaScript(`
+					alert("wooo!");
+				`);
 			}
 		}
 	};
