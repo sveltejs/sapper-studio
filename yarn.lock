@@ -1150,6 +1150,14 @@ global-dirs@^0.1.0:
   dependencies:
     ini "^1.3.4"
 
+globalyzer@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/globalyzer/-/globalyzer-0.1.0.tgz#cb76da79555669a1519d5a8edf093afaa0bf1465"
+
+globrex@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/globrex/-/globrex-0.1.1.tgz#cfe565cfa910707d0ef98eb0b9d78c3c055ca2ef"
+
 got@^6.7.1:
   version "6.7.1"
   resolved "https://registry.yarnpkg.com/got/-/got-6.7.1.tgz#240cd05785a9a18e561dc1b44b41c763ef1e8db0"
@@ -2839,6 +2847,13 @@ through2@~0.2.3:
 timed-out@^4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/timed-out/-/timed-out-4.0.1.tgz#f32eacac5a175bea25d7fab565ab3ed8741ef56f"
+
+tiny-glob@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/tiny-glob/-/tiny-glob-0.2.1.tgz#64347c97094f10669641d415952ce090cf8af34d"
+  dependencies:
+    globalyzer "^0.1.0"
+    globrex "^0.1.1"
 
 tippex@^2.1.1:
   version "2.3.1"

@@ -1,5 +1,5 @@
 {#if $port}
-	<webview ref:wv autosize src="http://localhost:{$port}"></webview>
+	<webview ref:wv autosize src="http://localhost:{$port}" {preload}></webview>
 {:else}
 	<div class="centered">
 		<button disabled={$startingDev} on:click="$startDev()">{$startingDev ? 'Starting...' : 'Start app'}</button>
@@ -35,15 +35,20 @@
 </style>
 
 <script>
+	import * as fs from 'fs';
 	import * as path from 'path';
 	import { ipcRenderer } from 'electron';
 	import relative from 'require-relative';
 	import glob from 'tiny-glob/sync';
+	import uriFromPath from '../../../shared/uriFromPath.ts';
+
+	let findElementScript;
 
 	export default {
 		data() {
 			return {
-				status: ''
+				status: '',
+				preload: uriFromPath(path.resolve(__dirname, '../workers/find-element-preload.js'))
 			}
 		},
 
@@ -79,16 +84,23 @@
 				this.set({ status, canGoBack, canGoForward, isOnSite });
 			};
 
-			const handleFindElement = event => {
-				console.log('found element', event);
+			const handleIpcMessage = event => {
+				if (event.channel !== 'select-element') return;
+				const [loc] = event.args;
+
+				const { dir } = this.store.get();
+
+				this.store.selectFile(path.join(dir, loc.file), { line: loc.line + 1, column: loc.column });
 			};
 
 			function addEventListeners(webview) {
 				webview.addEventListener('did-navigate-in-page', handleNav);
+				webview.addEventListener('ipc-message', handleIpcMessage);
 			}
 
 			function removeEventListeners(webview) {
 				webview.removeEventListener('did-navigate-in-page', handleNav);
+				webview.removeEventListener('ipc-message', handleIpcMessage);
 			}
 
 			this.on('state', ({ changed, current }) => {
@@ -143,9 +155,13 @@
 
 			editElement() {
 				if (!this.refs.wv) return;
-				this.refs.wv.executeJavaScript(`
-					alert("wooo!");
-				`);
+
+				if (!findElementScript) {
+					findElementScript = fs.readFileSync(path.resolve(__dirname, '../workers/find-element.js'), 'utf-8');
+				}
+
+				this.refs.wv.focus();
+				this.refs.wv.executeJavaScript(findElementScript);
 			}
 		}
 	};

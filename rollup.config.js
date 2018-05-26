@@ -38,7 +38,9 @@ export default [
 			'node-pty',
 			'default-shell',
 			'xterm',
-			'rimraf'
+			'rimraf',
+			'module',
+			'os'
 		]
 	}
 ];
