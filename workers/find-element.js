@@ -20,7 +20,7 @@ if (!window.__findElement) {
 
 		function handleMousemove(event) {
 			const element = [...document.elementsFromPoint(event.clientX, event.clientY)]
-				.filter(element => element.__svelte_meta)
+				.filter(element => element.__svelte_meta && element.__svelte_meta.loc)
 				.shift();
 
 			if (element) {
@@ -37,7 +37,7 @@ if (!window.__findElement) {
 					.map(name => `.${name}`)
 					.join('');
 
-				const { file, line, column } = element.__svelte_meta;
+				const { file, line, column } = element.__svelte_meta.loc;
 
 				if (top > 40) {
 					label.style.bottom = 'auto';
@@ -60,7 +60,7 @@ if (!window.__findElement) {
 
 		function handleMousedown(event) {
 			const element = [...document.elementsFromPoint(event.clientX, event.clientY)]
-				.filter(element => element.__svelte_meta)
+				.filter(element => element.__svelte_meta && element.__svelte_meta.loc)
 				.shift();
 
 			if (element) {
