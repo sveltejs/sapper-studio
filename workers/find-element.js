@@ -4,12 +4,8 @@ if (!window.__findElement) {
 	window.__findElement = () => {
 		const finder = document.createElement('elementfinder');
 		finder.style.position = 'fixed';
-		// finder.style.overflow = 'hidden';
-		// finder.style.textOverflow = 'ellipsis';
 		finder.style.boxSizing = 'border-box';
 		finder.style.backgroundColor = 'hsla(90, 50%, 80%, 0.4)';
-		// finder.style.border = '1px solid hsla(90, 50%, 50%, 0.8)';
-		// finder.style.borderRadius = '2px';
 
 		const label = document.createElement('elementfinderlabel');
 		label.style.position = 'absolute';
@@ -18,7 +14,6 @@ if (!window.__findElement) {
 		label.style.borderRadius = '2px';
 		label.style.padding = '2px 4px';
 		label.style.whiteSpace = 'pre';
-		// label.style.textShadow = '0 0 2px hsla(90, 50%, 80%, 1), 0 0 2px hsla(90, 50%, 80%, 1), 0 0 2px hsla(90, 50%, 80%, 1)';
 		label.style.fontFamily = '"Fira Code", Menlo, Inconsolata, monospace';
 		label.style.fontSize = '12px';
 		finder.appendChild(label);
@@ -69,9 +64,10 @@ if (!window.__findElement) {
 				.shift();
 
 			if (element) {
-				cancel();
 				window.selectElement(element);
 			}
+
+			cancel();
 		}
 
 		function cancel() {
