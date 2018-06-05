@@ -18,7 +18,7 @@ The hypothesis behind Sapper Studio is twofold:
 Sapper Studio is an Electron app. For now, you'll need to clone this repo and run it locally; there is no pre-packaged version.
 
 ```bash
-git clone git@github.com:sveltejs/sapper-studio
+git clone https://github.com/sveltejs/sapper-studio.git
 cd sapper-studio
 yarn
 yarn build
