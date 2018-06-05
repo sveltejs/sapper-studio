@@ -55,8 +55,6 @@ function launch() {
 }
 
 function openProject(dir) {
-	launcherWindow.close();
-
 	const index = recent.indexOf(dir);
 	if (index !== -1) recent.splice(index, 1);
 	recent.unshift(dir);
@@ -101,6 +99,8 @@ function openProject(dir) {
 	});
 
 	projectWindow.dir = dir;
+
+	launcherWindow.close();
 }
 
 // This method will be called when Electron has finished
