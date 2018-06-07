@@ -3,7 +3,10 @@
 	on:contextmenu="showDirectoryMenu(event)"
 >
 	{#if !root}
-		<span on:click="set({ open: !open })">{basename}</span>
+		<span
+			class={$selectedFile && $selectedFile.startsWith(dir + sep) ? 'selected' : ''}
+			on:click="set({ open: !open })"
+		>{basename}</span>
 	{/if}
 
 	{#if open}
@@ -163,7 +166,8 @@
 		data() {
 			return {
 				items: [],
-				open: false
+				open: false,
+				sep: path.sep
 			};
 		},
 
