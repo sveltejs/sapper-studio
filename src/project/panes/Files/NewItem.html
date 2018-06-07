@@ -1,0 +1,138 @@
+<li class="{type} creating">
+	<input
+		class="{error ? 'invalid' : ''} {wiggle ? 'wiggle' : ''}"
+		placeholder="New {type}"
+		on:input="validate(this.value)"
+		on:blur="create(this.value)"
+		on:enter="this.blur()"
+		on:escape="cancel()"
+		ref:input
+	>
+
+	{#if error}
+		<div class="error">{@html error}</div>
+	{/if}
+</li>
+
+<style>
+	li {
+		padding: 0.1em 1.2em;
+	}
+
+	input {
+		font-family: inherit;
+		font-size: inherit;
+		padding: 0.2em 0.3em;
+		border: 1px solid rgba(255,255,255,0.1);
+		background-color: rgba(255,255,255,0.1);
+		border-radius: 2px;
+		outline: none;
+		color: #eee;
+		width: 100%
+	}
+
+	input.invalid {
+		background-color: rgba(255,50,50,0.1);
+		border: 1px solid rgb(255, 50, 50);
+	}
+
+	input.wiggle {
+		animation: wiggle 0.4s;
+	}
+
+	@keyframes wiggle {
+		0% { transform: translate(0,0); }
+		20% { transform: translate(4px,0); }
+		40% { transform: translate(-4px,0); }
+		60% { transform: translate(4px,0); }
+		80% { transform: translate(-4px,0); }
+		100% { transform: translate(0,0); }
+	}
+
+	.error {
+		border: 1px solid rgb(255, 50, 50);
+		background-color: rgb(160, 10, 10);
+		color: white;
+		font-size: 12px;
+		padding: 0.5em;
+		top: 2em;
+		border-radius: 0 0 2px 2px;
+		position: absolute;
+		width: calc(100% - 2.8em);
+		z-index: 2;
+	}
+</style>
+
+<script>
+	import fs from 'fs';
+	import path from 'path';
+	import { enter, escape } from '../../../shared/key-events.ts';
+
+	export default {
+		data() {
+			return {
+				wiggle: false,
+				error: null
+			};
+		},
+
+		events: { enter, escape },
+
+		methods: {
+			cancel() {
+				this.cancelled = true;
+				this.fire('close');
+			},
+
+			create(basename) {
+				if (this.cancelled) return;
+
+				const { type, error } = this.get();
+
+				if (error) {
+					this.set({ wiggle: false });
+					setTimeout(() => {
+						this.set({ wiggle: true });
+					});
+					return;
+				}
+
+				const { dir } = this.get();
+				const resolved = path.resolve(dir, basename);
+
+				if (type === 'file') {
+					fs.writeFileSync(resolved, '');
+				} else {
+					fs.mkdirSync(resolved);
+				}
+
+				this.store.selectFile(resolved);
+				this.fire('close');
+			},
+
+			validate(value) {
+				const { dir } = this.get();
+
+				const resolved = path.resolve(dir, value);
+
+				let error;
+
+				if (value === '') {
+					error = '<span>cannot be empty</span>';
+				} else if (fs.existsSync(resolved)) {
+					error = `<span>already exists</span>`;
+				} else {
+					// TODO check the name itself is valid
+					error = null;
+				}
+
+				this.set({ error });
+			}
+		},
+
+		oncreate() {
+			this.refs.input.focus();
+			this.refs.input.select();
+		}
+	};
+</script>

@@ -8,37 +8,27 @@
 
 	{#if open}
 		<ul>
-			{#if creating}
-				<li class="{creating.type} creating">
-					<input
-						class="{creating.error ? 'invalid' : ''} {wiggle ? 'wiggle' : ''}"
-						placeholder="New {creating.type}"
-						on:input="validate(this.value)"
-						on:blur="create(creating, this.value)"
-						on:enter="this.blur()"
-						on:escape="set({ creating: null })"
-						ref:input
-					>
-
-					{#if creating.error}
-						<div class="error">{@html creating.error}</div>
-					{/if}
-				</li>
+			{#if creating === 'directory'}
+				<NewItem {dir} type="directory" on:close="set({ creating: null })"/>
 			{/if}
 
-			{#each items as item (item.basename)}
-				{#if item.isDir}
-					<svelte:self dir={item.resolved}/>
-				{:else}
-					<li
-						class="file {item.isDotfile ? 'hidden' : ''} {item.resolved === $selectedFile ? 'selected' : ''}"
-					>
-						<span
-							on:click="$selectFile(item.resolved)"
-							on:contextmenu="showFileMenu(item, event)"
-						>{item.basename}</span>
-					</li>
-				{/if}
+			{#each items.filter(item => item.isDir) as item (item.basename)}
+				<svelte:self dir={item.resolved}/>
+			{/each}
+
+			{#if creating === 'file'}
+				<NewItem {dir} type="file" on:close="set({ creating: null })"/>
+			{/if}
+
+			{#each items.filter(item => !item.isDir) as item (item.basename)}
+				<li
+					class="file {item.isDotfile ? 'hidden' : ''} {item.resolved === $selectedFile ? 'selected' : ''}"
+				>
+					<span
+						on:click="$selectFile(item.resolved)"
+						on:contextmenu="showFileMenu(item, event)"
+					>{item.basename}</span>
+				</li>
 			{/each}
 		</ul>
 	{/if}
@@ -56,53 +46,6 @@
 		line-height: 1;
 		margin: 0;
 		height: 100%;
-	}
-
-	.creating {
-		padding: 0.1em 1.2em;
-	}
-
-	input {
-		font-family: inherit;
-		font-size: inherit;
-		padding: 0.2em 0.3em;
-		border: 1px solid rgba(255,255,255,0.1);
-		background-color: rgba(255,255,255,0.1);
-		border-radius: 2px;
-		outline: none;
-		color: #eee;
-		width: 100%
-	}
-
-	input.invalid {
-		background-color: rgba(255,50,50,0.1);
-		border: 1px solid rgb(255, 50, 50);
-	}
-
-	input.wiggle {
-		animation: wiggle 0.4s;
-	}
-
-	@keyframes wiggle {
-		0% { transform: translate(0,0); }
-		20% { transform: translate(4px,0); }
-		40% { transform: translate(-4px,0); }
-		60% { transform: translate(4px,0); }
-		80% { transform: translate(-4px,0); }
-		100% { transform: translate(0,0); }
-	}
-
-	.error {
-		border: 1px solid rgb(255, 50, 50);
-		background-color: rgb(160, 10, 10);
-		color: white;
-		font-size: 12px;
-		padding: 0.5em;
-		top: 2em;
-		border-radius: 0 0 2px 2px;
-		position: absolute;
-		width: calc(100% - 2.8em);
-		z-index: 2;
 	}
 
 	span {
@@ -144,7 +87,6 @@
 	import * as path from 'path';
 	import * as child_process from 'child_process';
 	import { remote } from 'electron';
-	import { enter, escape } from '../../../shared/key-events.ts';
 
 	let watcherProc;
 	const subscribers = {};
@@ -214,6 +156,10 @@
 	}
 
 	export default {
+		components: {
+			NewItem: './NewItem.html'
+		},
+
 		data() {
 			return {
 				items: [],
@@ -237,8 +183,6 @@
 			this.updateContents();
 			this.createWatcher();
 		},
-
-		events: { enter, escape },
 
 		methods: {
 			updateContents() {
@@ -372,48 +316,8 @@
 			startCreating(type) {
 				this.set({
 					open: true,
-					creating: { type, error: null }
+					creating: type
 				});
-
-				this.refs.input.focus();
-				this.refs.input.select();
-			},
-
-			create(item, basename) {
-				if (item.error) {
-					this.set({ wiggle: false });
-					setTimeout(() => {
-						this.set({ wiggle: true });
-					});
-					return;
-				}
-
-				const { dir } = this.get();
-				const resolved = path.resolve(dir, basename);
-
-				if (item.type === 'file') {
-					fs.writeFileSync(resolved, '');
-				} else {
-					fs.mkdirSync(resolved, '');
-				}
-
-				this.set({ creating: false });
-				this.store.selectFile(resolved);
-			},
-
-			validate(value) {
-				const { dir, creating } = this.get();
-
-				const resolved = path.resolve(dir, value);
-
-				if (fs.existsSync(resolved)) {
-					creating.error = `<span>already exists</span>`;
-				} else {
-					// TODO check the name itself is valid
-					creating.error = null;
-				}
-
-				this.set({ creating });
 			}
 		}
 	};
