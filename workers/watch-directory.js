@@ -20,6 +20,8 @@ process.on('message', event => {
 
 		watcher.on('add', handler);
 		watcher.on('unlink', handler);
+		watcher.on('addDir', handler);
+		watcher.on('unlinkDir', handler);
 
 		if (watchers[dir]) {
 			throw new Error(`Watcher already exists`);
