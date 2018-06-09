@@ -1,0 +1,83 @@
+<li
+	class="file {item.isDotfile ? 'hidden' : ''} {resolved === $selectedFile ? 'selected' : ''}"
+>
+	{#if item.isEditing}
+		<NameInput
+			dir={item.dir}
+			basename={item.basename}
+			type="file"
+			on:close="stopEditing(event.basename)"
+		/>
+	{:else}
+		<span
+			on:click="$selectFile(resolved)"
+			on:contextmenu="showFileMenu(event)"
+		>{item.basename}</span>
+	{/if}
+</li>
+
+<style>
+
+</style>
+
+<script>
+	import path from 'path';
+	import { remote } from 'electron';
+	import confirmDeletion from './utils/confirmDeletion.js';
+
+	export default {
+		components: {
+			NameInput: './NameInput.html'
+		},
+
+		computed: {
+			isDotfile: ({ item }) => item.basename && item.basename[0] === '.',
+			resolved: ({ item }) => item.basename && path.join(item.dir, item.basename)
+		},
+
+		methods: {
+			showFileMenu(event) {
+				event.stopPropagation();
+
+				const { Menu, MenuItem } = remote;
+				const { resolved } = this.get();
+
+				const menu = Menu.buildFromTemplate([
+					{
+						label: 'Reveal in Finder',
+						click: () => {
+							console.log('reveal in finder');
+						}
+					},
+
+					{
+						label: 'Rename',
+						click: () => {
+							console.log('rename');
+						},
+						accelerator: 'Enter'
+					},
+
+					{
+						label: 'Delete',
+						click: () => {
+							confirmDeletion(resolved);
+						},
+						accelerator: 'CmdOrCtrl+Backspace'
+					}
+				]);
+
+				menu.popup({
+					window: remote.getCurrentWindow()
+				});
+			},
+
+			stopEditing(basename) {
+				const { item } = this.get();
+				item.basename = basename;
+				item.isEditing = false;
+				this.set({ item });
+			}
+		}
+	};
+</script>

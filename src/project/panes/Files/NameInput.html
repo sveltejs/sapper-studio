@@ -3,7 +3,7 @@
 		class="{error ? 'invalid' : ''} {wiggle ? 'wiggle' : ''}"
 		placeholder="New {type}"
 		on:input="validate(this.value)"
-		on:blur="create(this.value)"
+		on:blur="commit(this.value)"
 		on:enter="this.blur()"
 		on:escape="cancel()"
 		ref:input
@@ -81,10 +81,11 @@
 		methods: {
 			cancel() {
 				this.cancelled = true;
-				this.fire('close');
+				const { basename } = this.get();
+				this.fire('close', { basename });
 			},
 
-			create(basename) {
+			commit(basename) {
 				if (this.cancelled) return;
 
 				const { type, error } = this.get();
@@ -107,7 +108,7 @@
 				}
 
 				this.store.selectFile(resolved);
-				this.fire('close');
+				this.fire('close', { basename });
 			},
 
 			validate(value) {

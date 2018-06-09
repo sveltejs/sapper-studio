@@ -3,35 +3,29 @@
 	on:contextmenu="showDirectoryMenu(event)"
 >
 	{#if !root}
-		<span
-			class={$selectedFile && $selectedFile.startsWith(dir + sep) ? 'selected' : ''}
-			on:click="set({ open: !open })"
-		>{basename}</span>
+		{#if item.isEditing}
+			<NameInput
+				dir={item.dir}
+				basename={item.basename}
+				type="directory"
+				on:close="stopEditing(event.basename)"
+			/>
+		{:else}
+			<span
+				class={($selectedFile && $selectedFile.startsWith(resolved + sep)) ? 'selected' : ''}
+				on:click="set({ open: !open })"
+			>{item.basename}</span>
+		{/if}
 	{/if}
 
 	{#if open}
 		<ul>
-			{#if creating === 'directory'}
-				<NewItem {dir} type="directory" on:close="set({ creating: null })"/>
-			{/if}
-
 			{#each items.filter(item => item.isDir) as item (item.basename)}
-				<svelte:self dir={item.resolved}/>
+				<svelte:self {item}/>
 			{/each}
 
-			{#if creating === 'file'}
-				<NewItem {dir} type="file" on:close="set({ creating: null })"/>
-			{/if}
-
 			{#each items.filter(item => !item.isDir) as item (item.basename)}
-				<li
-					class="file {item.isDotfile ? 'hidden' : ''} {item.resolved === $selectedFile ? 'selected' : ''}"
-				>
-					<span
-						on:click="$selectFile(item.resolved)"
-						on:contextmenu="showFileMenu(item, event)"
-					>{item.basename}</span>
-				</li>
+				<File {item}/>
 			{/each}
 		</ul>
 	{/if}
@@ -44,44 +38,12 @@
 		margin: 0;
 	}
 
-	li {
-		font-size: 14px;
-		line-height: 1;
-		margin: 0;
-		height: 100%;
-	}
-
-	span {
-		display: block;
-		padding: 0.3em 0 0.3em 1.5em;
-		white-space: pre;
-		background: no-repeat 0.2em 0.4em;
-		background-size: 1em 1em;
-	}
-
-	span:hover {
-		background-color: rgba(255,255,255,0.1);
-	}
-
-	.hidden span {
-		color: #999;
-	}
-
-	.file {
-		/* background-image: url('../assets/icons/file-white.svg'); */
-	}
-
 	.directory > span {
 		background-image: url('../assets/icons/chevronright-white.svg');
 	}
 
 	.directory.open > span {
 		background-image: url('../assets/icons/chevrondown-white.svg');
-	}
-
-	.selected {
-		/* background-color: rgba(255,255,255,0.1); */
-		color: rgba(170,120,255,1);
 	}
 </style>
 
@@ -90,77 +52,13 @@
 	import * as path from 'path';
 	import * as child_process from 'child_process';
 	import { remote } from 'electron';
-
-	let watcherProc;
-	const subscribers = {};
-
-	function watch(dir, component) {
-		if (!watcherProc) {
-			const worker = path.resolve(__dirname, '../workers/watch-directory.js');
-			watcherProc = child_process.fork(worker, {
-				cwd: process.cwd()
-			});
-
-			watcherProc.on('message', message => {
-				if (message.type === 'directory-changed') {
-					const components = subscribers[message.dir];
-					if (components) {
-						components.forEach(component => {
-							component.updateContents();
-						});
-					}
-				}
-			});
-		}
-
-		const components = (subscribers[dir] || (subscribers[dir] = []));
-		components.push(component);
-
-		if (components.length === 1) {
-			watcherProc.send({
-				command: 'start-watching',
-				dir
-			});
-		}
-
-		return {
-			close() {
-				const index = components.indexOf(component);
-				if (index !== -1) components.splice(index, 1);
-
-				if (components.length === 0) {
-					watcherProc.send({
-						command: 'stop-watching',
-						dir
-					});
-				}
-			}
-		};
-	}
-
-	function confirmDeletion(file) {
-		const { dialog } = remote;
-
-		dialog.showMessageBox(remote.getCurrentWindow(), {
-			type: 'question',
-			buttons: ['Cancel', 'Move to trash'],
-			defaultId: 1,
-			cancelId: 0,
-			message: `Are you sure?`,
-			detail: `This will move '${file}' to the trash`
-		}, async index => {
-			if (index === 1) {
-				const rimraf = await import('rimraf');
-				rimraf(file, err => {
-					if (err) console.error(err);
-				});
-			}
-		});
-	}
+	import confirmDeletion from './utils/confirmDeletion.js';
+	import watch from './utils/watch.js';
 
 	export default {
 		components: {
-			NewItem: './NewItem.html'
+			NameInput: './NameInput.html',
+			File: './File.html'
 		},
 
 		data() {
@@ -172,38 +70,44 @@
 		},
 
 		computed: {
-			isDotfile: ({ basename }) => basename[0] === '.',
-			basename: ({ dir }) => path.basename(dir)
+			isDotfile: ({ item }) => item.basename && item.basename[0] === '.',
+			resolved: ({ item }) => item.basename && path.join(item.dir, item.basename)
 		},
 
 		oncreate() {
-			const { dir } = this.get();
-
 			this.on('destroy', () => {
 				this.destroyed = true;
 				if (this.watcher) this.watcher.close();
 			});
+		},
 
-			this.updateContents();
-			this.createWatcher();
+		onstate({ changed, current }) {
+			if (changed.open) {
+				if (current.open) {
+					this.updateContents();
+					this.watcher = watch(current.resolved, this);
+				} else if (this.watcher) {
+					this.watcher.close();
+					this.watcher = null;
+				}
+			}
 		},
 
 		methods: {
 			updateContents() {
-				const { dir } = this.get();
+				const { item, resolved } = this.get();
 
-				if (!fs.existsSync(dir)) {
+				if (!fs.existsSync(resolved)) {
 					// we're about to be destroyed
 					return;
 				}
 
-				const items = fs.readdirSync(dir)
+				const items = fs.readdirSync(resolved)
 					.map(file => {
-						const resolved = path.join(dir, file);
-						const stats = fs.statSync(resolved);
+						const stats = fs.statSync(path.join(resolved, file));
 
 						return {
-							resolved,
+							dir: resolved,
 							basename: file,
 							isDir: stats.isDirectory(),
 							isDotfile: file[0] === '.'
@@ -218,23 +122,15 @@
 			},
 
 			createWatcher() {
-				const { dir } = this.get();
-				this.watcher = watch(dir, this);
-			},
-
-			toggle(basename) {
-				const { open } = this.get();
-				open[basename] = !open[basename];
-				this.set({ open });
+				const { resolved } = this.get();
+				this.watcher = watch(resolved, this);
 			},
 
 			showDirectoryMenu(event) {
 				event.stopPropagation();
 
 				const { Menu, MenuItem } = remote;
-				const { dir } = this.get();
-
-				const basename = path.basename(dir);
+				const { resolved } = this.get();
 
 				const menu = Menu.buildFromTemplate([
 					{
@@ -271,42 +167,7 @@
 					{
 						label: 'Delete',
 						click: () => {
-							confirmDeletion(dir);
-						},
-						accelerator: 'CmdOrCtrl+Backspace'
-					}
-				]);
-
-				menu.popup({
-					window: remote.getCurrentWindow()
-				});
-			},
-
-			showFileMenu(item, event) {
-				event.stopPropagation();
-
-				const { Menu, MenuItem } = remote;
-
-				const menu = Menu.buildFromTemplate([
-					{
-						label: 'Reveal in Finder',
-						click: () => {
-							console.log('reveal in finder');
-						}
-					},
-
-					{
-						label: 'Rename',
-						click: () => {
-							console.log('rename');
-						},
-						accelerator: 'Enter'
-					},
-
-					{
-						label: 'Delete',
-						click: () => {
-							confirmDeletion(item.resolved);
+							confirmDeletion(resolved);
 						},
 						accelerator: 'CmdOrCtrl+Backspace'
 					}
@@ -318,10 +179,26 @@
 			},
 
 			startCreating(type) {
-				this.set({
-					open: true,
-					creating: type
-				});
+				this.set({ open: true });
+
+				const { resolved, item, items } = this.get();
+
+				const newItem = {
+					dir: resolved,
+					basename: '',
+					isDir: type === 'directory',
+					isEditing: true
+				};
+
+				items.unshift(newItem);
+				this.set({ items });
+			},
+
+			stopEditing(basename) {
+				const { item } = this.get();
+				item.isEditing = false;
+				item.basename = basename;
+				this.set({ item });
 			}
 		}
 	};
