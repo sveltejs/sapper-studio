@@ -26,9 +26,9 @@
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/7zip-bin/-/7zip-bin-4.0.2.tgz#6abbdc22f33cab742053777a26db2e25ca527179"
 
-"@sveltejs/svelte-subdivide@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@sveltejs/svelte-subdivide/-/svelte-subdivide-1.0.0.tgz#343257b74e411e940bdcb33551cec6713666cf3c"
+"@sveltejs/svelte-subdivide@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@sveltejs/svelte-subdivide/-/svelte-subdivide-2.0.0.tgz#85ce28e6bb59de4522409e8bbe7b4bce524353fc"
 
 "@types/estree@0.0.39":
   version "0.0.39"
