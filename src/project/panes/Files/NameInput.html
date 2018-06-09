@@ -1,4 +1,4 @@
-<li class="{type} creating">
+<div class="padding">
 	<input
 		class="{error ? 'invalid' : ''} {wiggle ? 'wiggle' : ''}"
 		placeholder="New {type}"
@@ -7,22 +7,23 @@
 		on:enter="this.blur()"
 		on:escape="cancel()"
 		ref:input
+		value={basename}
 	>
 
 	{#if error}
 		<div class="error">{@html error}</div>
 	{/if}
-</li>
+</div>
 
 <style>
-	li {
-		padding: 0.1em 1.2em;
+	.padding {
+		padding: 0 0.5em 0 1.2em;
 	}
 
 	input {
 		font-family: inherit;
 		font-size: inherit;
-		padding: 0.2em 0.3em;
+		padding: 0.1em 0 0.1em 0.2em;
 		border: 1px solid rgba(255,255,255,0.1);
 		background-color: rgba(255,255,255,0.1);
 		border-radius: 2px;
@@ -66,6 +67,7 @@
 <script>
 	import fs from 'fs';
 	import path from 'path';
+	import mkdirp from 'mkdirp';
 	import { enter, escape } from '../../../shared/key-events.ts';
 
 	export default {
@@ -85,30 +87,44 @@
 				this.fire('close', { basename });
 			},
 
-			commit(basename) {
+			commit(newBasename) {
 				if (this.cancelled) return;
 
-				const { type, error } = this.get();
+				const { basename, dir, type, error } = this.get();
 
-				if (error) {
-					this.set({ wiggle: false });
-					setTimeout(() => {
-						this.set({ wiggle: true });
-					});
-					return;
-				}
+				const resolved = path.resolve(dir, newBasename);
 
-				const { dir } = this.get();
-				const resolved = path.resolve(dir, basename);
+				if (newBasename !== basename) {
+					if (error) {
+						this.set({ wiggle: false });
+						setTimeout(() => {
+							this.set({ wiggle: true });
+						});
+						return;
+					}
 
-				if (type === 'file') {
-					fs.writeFileSync(resolved, '');
-				} else {
-					fs.mkdirSync(resolved);
+					if (basename === null) {
+						// creating file
+						if (type === 'file') {
+							fs.writeFileSync(resolved, '');
+						} else {
+							fs.mkdirSync(resolved);
+						}
+					} else {
+						// renaming file
+						if (type === 'file') {
+							const oldResolved = path.resolve(dir, basename);
+							const data = fs.readFileSync(oldResolved);
+							fs.writeFileSync(resolved, data);
+							fs.unlinkSync(oldResolved);
+						} else {
+							console.error('TODO move directory');
+						}
+					}
 				}
 
 				this.store.selectFile(resolved);
-				this.fire('close', { basename });
+				this.fire('close', { basename: newBasename });
 			},
 
 			validate(value) {
@@ -134,6 +150,9 @@
 		oncreate() {
 			this.refs.input.focus();
 			this.refs.input.select();
+
+			const extname = path.extname(this.refs.input.value);
+			if (extname) this.refs.input.selectionEnd -= extname.length;
 		}
 	};
 </script>

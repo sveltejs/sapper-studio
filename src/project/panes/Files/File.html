@@ -40,7 +40,7 @@
 				event.stopPropagation();
 
 				const { Menu, MenuItem } = remote;
-				const { resolved } = this.get();
+				const { item, resolved } = this.get();
 
 				const menu = Menu.buildFromTemplate([
 					{
@@ -53,7 +53,8 @@
 					{
 						label: 'Rename',
 						click: () => {
-							console.log('rename');
+							item.isEditing = true;
+							this.set({ item });
 						},
 						accelerator: 'Enter'
 					},
