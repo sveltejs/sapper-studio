@@ -1,12 +1,15 @@
 <div class="pane" on:mousedown="focus()">
 	<div class="chooser-container">
-		<Chooser
-			bind:selected
-			focused={pane === $focusedPane}
-			on:action="action(event)"
-			{status}
-			{actions}
-		/>
+		{#if selected}
+			<Chooser
+				bind:selected
+				focused={pane === $focusedPane}
+				on:action="action(event)"
+				{status}
+				{actions}
+				{options}
+			/>
+		{/if}
 	</div>
 
 	<div class="pane-content">
@@ -44,13 +47,70 @@
 </style>
 
 <script>
+	import * as layout from './layout.ts';
+
+	const options = [
+		{
+			name: 'Welcome screen',
+			fn: () => import('./panes/Welcome/index.html')
+		},
+
+		{
+			name: 'Controls',
+			fn: () => import('./panes/Controls/index.html')
+		},
+
+		{
+			name: 'Terminal',
+			fn: () => import('./panes/Terminal/index.html')
+		},
+
+		{
+			name: 'App',
+			fn: () => import('./panes/App/index.html')
+		},
+
+		{
+			name: 'Editor',
+			fn: () => import('./panes/Editor/index.html')
+		},
+
+		{
+			name: 'Files',
+			fn: () => import('./panes/Files/index.html')
+		},
+
+		{
+			name: 'Server logs',
+			fn: () => import('./panes/logs/index.html')
+		}
+	];
+
+	let firstRun = true;
+
 	export default {
 		components: {
 			Chooser: './Chooser.html'
 		},
 
+		data() {
+			return {
+				options
+			};
+		},
+
 		oncreate() {
 			const { pane } = this.get();
+
+			const type = layout.restorePane(pane);
+			let selected = options.find(option => option.name === type);
+
+			if (!selected) {
+				selected = firstRun ? options[1] : options[5];
+				firstRun = false;
+			}
+
+			this.set({ selected });
 
 			this.store.set({
 				focusedPane: pane
@@ -60,7 +120,7 @@
 		async onstate({ changed, current }) {
 			if (changed.selected) {
 				const token = this.token = {};
-				const Component = await current.selected.fn();
+				const Component = current.selected && await current.selected.fn();
 
 				if (token === this.token) {
 					this.set({
@@ -69,6 +129,8 @@
 						Component
 					});
 				}
+
+				layout.savePane(current.pane, current.selected && current.selected.name);
 			}
 		},
 

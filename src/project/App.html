@@ -6,7 +6,14 @@
 	<div class="fake-title">{$dir}</div>
 
 	<div class="panes">
-		<Subdivide component={Pane} thickness="4px" color="black"/>
+		<Subdivide
+			component={Pane}
+			thickness="4px"
+			color="black"
+			{layout}
+			on:layout="save(event.layout)"
+			on:close="removePane(event.pane)"
+		/>
 	</div>
 </main>
 
@@ -54,6 +61,7 @@
 <script>
 	import { remote } from 'electron';
 	import { fade } from 'svelte-transitions';
+	import * as layout from './layout.ts';
 	import store from './store.js';
 	import Pane from './Pane.html';
 
@@ -71,7 +79,8 @@
 		data() {
 			return {
 				Pane,
-				fullscreen: win.isFullScreen()
+				fullscreen: win.isFullScreen(),
+				layout: layout.restore()
 			};
 		},
 
@@ -91,6 +100,11 @@
 				win.removeListener('enter-full-screen', enter);
 				win.removeListener('leave-full-screen', leave);
 			});
+		},
+
+		methods: {
+			save: layout.save,
+			removePane: layout.removePane
 		},
 
 		transitions: {

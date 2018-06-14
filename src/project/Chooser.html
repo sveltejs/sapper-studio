@@ -147,56 +147,7 @@
 </style>
 
 <script>
-	const options = [
-		{
-			name: 'Welcome screen',
-			fn: () => import('./panes/Welcome/index.html')
-		},
-
-		{
-			name: 'Controls',
-			fn: () => import('./panes/Controls/index.html')
-		},
-
-		{
-			name: 'Terminal',
-			fn: () => import('./panes/Terminal/index.html')
-		},
-
-		{
-			name: 'App',
-			fn: () => import('./panes/App/index.html')
-		},
-
-		{
-			name: 'Editor',
-			fn: () => import('./panes/Editor/index.html')
-		},
-
-		{
-			name: 'Files',
-			fn: () => import('./panes/Files/index.html')
-		},
-
-		{
-			name: 'Server logs',
-			fn: () => import('./panes/logs/index.html')
-		}
-	];
-
-	let firstRun = true;
-
 	export default {
-		data() {
-			const selected = firstRun ? options[1] : options[5];
-			firstRun = false;
-
-			return {
-				options,
-				selected
-			}
-		},
-
 		methods: {
 			select(selected) {
 				this.set({ selected, showMenu: false });

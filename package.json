@@ -33,7 +33,7 @@
     "typescript": "^2.8.3"
   },
   "dependencies": {
-    "@sveltejs/svelte-subdivide": "^2.0.0",
+    "@sveltejs/svelte-subdivide": "^2.1.0",
     "chokidar": "^2.0.3",
     "cross-env": "^5.1.6",
     "default-shell": "^1.0.1",
