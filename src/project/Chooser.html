@@ -1,7 +1,13 @@
 <svelte:window on:mousedown="set({ showMenu: false })"/>
 
 <div class="chooser {focused ? 'focused' : ''}">
-	<button class="main" on:click="set({ showMenu: !showMenu })">{selected.name}</button>
+	<div style="width: 9999px">
+		<button class="main" on:click="set({ showMenu: !showMenu })">{selected.name}</button>
+
+		{#if status}
+			<span class="status">{status}</span>
+		{/if}
+	</div>
 
 	{#if showMenu}
 		<div class="menu" on:mousedown="event.stopPropagation()">
@@ -9,12 +15,6 @@
 				<button class="{option === selected ? 'selected' : ''}" on:click="select(option)">{option.name}</button>
 			{/each}
 		</div>
-
-		<!-- <div class="shadow-blocker"></div> -->
-	{/if}
-
-	{#if status}
-		<span class="status">{status}</span>
 	{/if}
 
 	<div class="actions" style="width: {actions ? actions.length * 2 : 0}em">
