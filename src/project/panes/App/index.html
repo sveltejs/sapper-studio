@@ -142,10 +142,16 @@
 			},
 
 			async editPage() {
-				const { dir } = this.store.get();
+				const { basepath = '', dir } = this.store.get();
 				const { find_page } = relative('sapper/api.js', dir);
-				const { status: pathname } = this.get(); // bit of a hack — proxy for pathname
 				const files = glob('**', { cwd: path.resolve(dir, 'routes'), filesOnly: true, dot: true });
+
+				let { status: pathname } = this.get(); // bit of a hack — proxy for pathname
+
+				if (pathname.startsWith(basepath)) {
+					pathname = pathname.slice(basepath.length);
+				}
+
 				const page = find_page(pathname, files);
 
 				if (page) {

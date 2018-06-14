@@ -93,12 +93,11 @@ class StudioStore extends Store {
 					break;
 
 				case 'error':
-				console.log(`error ${message.error.message}`);
+					console.log(`error ${message.error.message}`);
 					break;
 
 				case 'ready':
 					setTimeout(() => {
-						console.log('message', message.port);
 						this.set({
 							startingDev: false,
 							runningDev: true,
@@ -108,6 +107,10 @@ class StudioStore extends Store {
 							port: message.port
 						});
 					});
+					break;
+
+				case 'basepath':
+					this.set({ basepath: message.event.basepath });
 
 					break;
 			}

@@ -19,30 +19,11 @@ watcher.on('ready', event => {
 	});
 });
 
-watcher.on('error', event => {
-	process.send({
-		type: 'error',
-		event
-	});
-});
-
-watcher.on('fatal', event => {
-	process.send({
-		type: 'fatal',
-		event
-	});
-});
-
-watcher.on('invalid', event => {
-	process.send({
-		type: 'invalid',
-		event
-	});
-});
-
-watcher.on('build', event => {
-	process.send({
-		type: 'build',
-		event
+['error', 'fatal', 'invalid', 'build', 'basepath'].forEach(type => {
+	watcher.on(type, event => {
+		process.send({
+			type,
+			event
+		});
 	});
 });
