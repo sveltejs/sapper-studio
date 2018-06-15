@@ -2,7 +2,9 @@ const relative = require('require-relative');
 
 const { dev } = relative('sapper/api.js', process.cwd());
 
-const watcher = dev({});
+const watcher = dev({
+	port: process.env.PORT
+});
 
 watcher.on('ready', event => {
 	process.send({
