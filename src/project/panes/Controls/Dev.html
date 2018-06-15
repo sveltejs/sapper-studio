@@ -4,15 +4,17 @@
 		class="{$runningDev || $startingDev ? 'pause' : 'play'}"
 	>{$runningDev || $startingDev ? 'stop' : 'start'}</button>
 
-	<span class="status">
+	<div class="port">
+		port <input disabled={$runningDev || $startingDev} type="number" bind:value=$port>
+
 		{#if $runningDev}
-			running on <a on:click="open(event)" href="http://localhost:{$port}">localhost:{$port}</a>
+			<a on:click="open(event)" href="http://localhost:{$port}">running</a>
 		{:elseif $startingDev}
 			starting...
 		{:else}
 			waiting
 		{/if}
-	</span>
+	</div>
 </div>
 
 <Status type='client' invalid={$invalid.client} stats={$clientStats}/>
@@ -63,11 +65,28 @@
 		/* position: absolute; */
 		left: 0;
 		display: block;
+		margin: 0 0 1em 0;
 	}
 
-	.status {
+	.port {
 		font-size: 14px;
 		color: #999;
+		margin: 0 0 1em 0;
+	}
+
+	.port input {
+		font-family: inherit;
+		font-size: inherit;
+		width: 4.2em;
+		border-radius: 2px;
+		background-color: rgba(255,255,255,0.1);
+		color: rgba(255,255,255,0.8);
+		border: 1px solid rgba(255,255,255,0.2);
+		padding: 0.1em 0 0.1em 0.6em;
+	}
+
+	.port input:disabled {
+		opacity: 0.5;
 	}
 
 	a {

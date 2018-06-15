@@ -44,7 +44,10 @@ class StudioStore extends Store {
 		const workerPath = path.resolve(__dirname, '../workers/sapper-dev.js');
 		devWorker = child_process.fork(workerPath, [], {
 			cwd: dir,
-			stdio: ['ipc']
+			stdio: ['ipc'],
+			env: {
+				PORT: this.get().port
+			}
 		});
 
 		devWorker.stdout.on('data', data => {
@@ -131,7 +134,6 @@ class StudioStore extends Store {
 		this.set({
 			startingDev: false,
 			runningDev: false,
-			port: null,
 			mode: null
 		});
 	}
@@ -140,7 +142,8 @@ class StudioStore extends Store {
 const store = new StudioStore({
 	dir,
 	metaKey: /win/i.test(navigator.platform) ? 'Ctrl' : 'Cmd',
-	combined: ''
+	combined: '',
+	port: 3000 // TODO use localStorage
 });
 
 export default store;
