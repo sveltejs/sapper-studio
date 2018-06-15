@@ -79,7 +79,7 @@ button {
 	font-family: inherit;
 	font-size: inherit;
 	border: none;
-	background: rgba(170,120,255,1);
+	background: hsl(var(--accent-hue), 100%, 65%);
 	color: white;
 	font-weight: bold;
 	outline: none;

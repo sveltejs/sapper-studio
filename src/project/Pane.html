@@ -1,4 +1,4 @@
-<div class="pane" on:mousedown="focus()">
+<div class="pane {pane === $focusedPane ? 'focused' : ''}" on:mousedown="focus()">
 	<div class="chooser-container">
 		{#if selected}
 			<Chooser
@@ -26,14 +26,20 @@
 	.pane {
 		width: 100%;
 		height: 100%;
-		background-color: rgba(255,255,255,0.1);
+		background-color: #222;
 		color: #eee;
 		padding: 28px 0 0 0;
+		border: 1px solid transparent;
+		border-radius: 3px;
 	}
 
 	.pane-content {
 		width: 100%;
 		height: 100%;
+	}
+
+	.focused {
+		border: 1px solid hsl(var(--accent-hue), 100%, 65%);
 	}
 
 	.chooser-container {

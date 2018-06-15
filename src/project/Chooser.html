@@ -41,8 +41,8 @@
 	}
 
 	.focused {
-		--bg: rgb(102,102,102);
-		--bgz: rgba(102,102,102,0);
+		--bg: hsl(var(--accent-hue),100%,65%);
+		--bgz: hsla(var(--accent-hue),100%,65%,0);
 	}
 
 	button {
@@ -87,7 +87,7 @@
 	}
 
 	.menu button:hover {
-		background-color: #777;
+		background-color: rgba(0,0,0,0.2);
 	}
 
 	/* .menu button.selected::before {

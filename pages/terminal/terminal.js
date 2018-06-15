@@ -21,7 +21,7 @@ terminal = new Terminal({
 	fontWeight: 300,
 	fontSize: 14,
 	theme: {
-		background: '#333'
+		background: '#222'
 	}
 });
 

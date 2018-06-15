@@ -9,7 +9,7 @@
 		<Subdivide
 			component={Pane}
 			thickness="4px"
-			color="black"
+			color="transparent"
 			{layout}
 			on:layout="save(event.layout)"
 			on:close="removePane(event.pane)"
@@ -26,8 +26,9 @@
 		position: absolute;
 		width: 100%;
 		height: 100%;
-		padding: 22px 0 0 0;
-		background: linear-gradient(155deg, #111 0%,#222 100%);
+		padding: 24px 4px 4px 4px;
+		background: black;
+		--accent-hue: 262;
 	}
 
 	main.fullscreen {
