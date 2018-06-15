@@ -12,6 +12,12 @@ class StudioStore extends Store {
 		super(Object.assign({
 			invalid: {}
 		}, data));
+
+		this.compute(
+			'running',
+			['runningDev'],
+			(runningDev) => runningDev
+		);
 	}
 
 	selectFile(file, loc) {
@@ -92,11 +98,16 @@ class StudioStore extends Store {
 					break;
 
 				case 'fatal':
-					console.log(`fatal ${message.error.message}`);
+					remote.dialog.showMessageBox({
+						type: 'error',
+						message: message.event.message
+					});
+
+					this.stopDev();
 					break;
 
 				case 'error':
-					console.log(`error ${message.error.message}`);
+					console.log(`error ${message.event.error.message}`);
 					break;
 
 				case 'ready':

@@ -1,4 +1,4 @@
-{#if $runningDev}
+{#if $running}
 	<webview ref:wv autosize src="http://localhost:{$port}" {preload}></webview>
 {:else}
 	<div class="centered">
@@ -104,7 +104,7 @@
 			}
 
 			this.on('state', ({ changed, current }) => {
-				if (changed.$port && !current.$port) {
+				if (changed.$running && !current.$running) {
 					if (this.refs.wv) {
 						removeEventListeners(this.refs.wv);
 					}
@@ -112,7 +112,7 @@
 			});
 
 			this.on('update', ({ changed, current }) => {
-				if (changed.$port && current.$port) {
+				if (changed.$running && current.$running) {
 					addEventListeners(this.refs.wv);
 				}
 			});
