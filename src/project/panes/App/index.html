@@ -1,4 +1,4 @@
-{#if $port}
+{#if $runningDev}
 	<webview ref:wv autosize src="http://localhost:{$port}" {preload}></webview>
 {:else}
 	<div class="centered">
