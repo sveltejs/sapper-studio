@@ -22,7 +22,7 @@
 
 <script>
 	import path from 'path';
-	import { remote } from 'electron';
+	import { remote, shell } from 'electron';
 	import confirmDeletion from './utils/confirmDeletion.js';
 
 	export default {
@@ -46,7 +46,7 @@
 					{
 						label: 'Reveal in Finder',
 						click: () => {
-							console.log('reveal in finder');
+							shell.showItemInFolder(resolved);
 						}
 					},
 

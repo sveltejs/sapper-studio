@@ -1,4 +1,4 @@
-import { remote } from 'electron';
+import { remote, shell } from 'electron';
 
 export default function confirmDeletion(file) {
 	const { dialog } = remote;
@@ -12,10 +12,7 @@ export default function confirmDeletion(file) {
 		detail: `This will move '${file}' to the trash`
 	}, async index => {
 		if (index === 1) {
-			const rimraf = await import('rimraf');
-			rimraf(file, err => {
-				if (err) console.error(err);
-			});
+			shell.moveItemToTrash(file);
 		}
 	});
 }

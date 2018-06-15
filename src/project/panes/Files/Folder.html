@@ -51,7 +51,7 @@
 	import * as fs from 'fs';
 	import * as path from 'path';
 	import * as child_process from 'child_process';
-	import { remote } from 'electron';
+	import { remote, shell } from 'electron';
 	import confirmDeletion from './utils/confirmDeletion.js';
 	import watch from './utils/watch.js';
 
@@ -152,7 +152,7 @@
 					{
 						label: 'Reveal in Finder',
 						click: () => {
-							console.log('reveal in finder');
+							shell.showItemInFolder(resolved);
 						}
 					},
 
