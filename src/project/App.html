@@ -2,6 +2,8 @@
 	<title>{$dir}</title>
 </svelte:head>
 
+<svelte:window on:keydown="handleKeydown(event)"/>
+
 <main in:fade class="{fullscreen ? 'fullscreen' : ''}">
 	<div class="fake-title">{$dir}</div>
 
@@ -10,7 +12,7 @@
 			component={Pane}
 			thickness="4px"
 			color="transparent"
-			{layout}
+			bind:layout
 			on:layout="save(event.layout)"
 			on:close="removePane(event.pane)"
 		/>
@@ -62,13 +64,17 @@
 <script>
 	import { remote } from 'electron';
 	import { fade } from 'svelte-transitions';
-	import * as layout from './layout.ts';
+	import { save, restore, removePane } from './layout.ts';
 	import store from './store.js';
 	import Pane from './Pane.html';
 
 	const win = remote.getCurrentWindow();
 
 	window.win = win;
+
+	function closeEnough(a, b) {
+		return Math.abs(a - b) < 0.0001;
+	}
 
 	export default {
 		components: {
@@ -81,7 +87,7 @@
 			return {
 				Pane,
 				fullscreen: win.isFullScreen(),
-				layout: layout.restore()
+				layout: restore()
 			};
 		},
 
@@ -104,8 +110,75 @@
 		},
 
 		methods: {
-			save: layout.save,
-			removePane: layout.removePane
+			save,
+			removePane,
+
+			handleKeydown(event) {
+				if (event.metaKey && event.shiftKey) {
+					if (event.which >= 37 && event.which <= 40) {
+						this.switchPane(event.which);
+					}
+				}
+			},
+
+			switchPane(which) {
+				const { layout } = this.get();
+				const { focusedPane } = this.store.get();
+
+				const panes = [];
+
+				const walk = (group, x, y, w, h) => {
+					group.children.forEach(child => {
+						const nx = group.row ? x + child.pos * w : x;
+						const ny = group.row ? y : y + child.pos * h;
+						const nw = group.row ? child.size * w : w;
+						const nh = group.row ? h : child.size * h;
+
+						if (child.type === 'group') {
+							walk(child, nx, ny, nw, nh);
+						} else {
+							panes.push({
+								id: child.id,
+								x0: nx,
+								y0: ny,
+								x1: nx + nw,
+								y1: ny + nh,
+								cx: (nx + nw / 2),
+								cy: (ny + nh / 2)
+							});
+						}
+					});
+				};
+
+				walk(layout.root, 0, 0, 1, 1);
+
+				const focused = panes.find(pane => pane.id === focusedPane);
+				let selected;
+
+				if (which === 37 || which === 39) { // left, right
+					const candidates = which === 37
+						? panes.filter(pane => closeEnough(pane.x1, focused.x0))
+						: panes.filter(pane => closeEnough(pane.x0, focused.x1));
+
+					if (candidates.length === 0) return;
+
+					selected = candidates
+						.sort((a, b) => Math.abs(a.cy - focused.cy) - Math.abs(b.cy - focused.cy))
+						.shift();
+				} else {
+					const candidates = which === 38 // up
+						? panes.filter(pane => closeEnough(pane.y1, focused.y0))
+						: panes.filter(pane => closeEnough(pane.y0, focused.y1));
+
+					if (candidates.length === 0) return;
+
+					selected = candidates
+						.sort((a, b) => Math.abs(a.cx - focused.cx) - Math.abs(b.cx - focused.cx))
+						.shift();
+				}
+
+				if (selected) this.store.set({ focusedPane: selected.id });
+			}
 		},
 
 		transitions: {

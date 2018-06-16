@@ -1,9 +1,9 @@
-<div class="pane {pane === $focusedPane ? 'focused' : ''}" on:mousedown="focus()">
+<div class="pane {pane.id === $focusedPane ? 'focused' : ''}" on:mousedown="focus()">
 	<div class="chooser-container">
 		{#if selected}
 			<Chooser
 				bind:selected
-				focused={pane === $focusedPane}
+				focused={pane.id === $focusedPane}
 				on:action="action(event)"
 				{status}
 				{actions}
@@ -119,7 +119,7 @@
 			this.set({ selected });
 
 			this.store.set({
-				focusedPane: pane
+				focusedPane: pane.id
 			});
 		},
 
@@ -145,7 +145,7 @@
 				const { pane } = this.get();
 
 				this.store.set({
-					focusedPane: pane
+					focusedPane: pane.id
 				});
 
 				if (this.refs.pane && this.refs.pane.focus) {
