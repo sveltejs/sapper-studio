@@ -1,9 +1,7 @@
-<div ref:container>
-	<webview src="../pages/editor/index.html" nodeintegration></webview>
-</div>
+<webview ref:webview src="../pages/editor/index.html" nodeintegration></webview>
 
 <style>
-	ref:container {
+	webview {
 		width: 100%;
 		height: 100%;
 		background-color: rgb(30,30,30);
@@ -29,16 +27,13 @@
 				this.destroyed = true;
 			});
 
-			this.webview = this.refs.container.querySelector('webview');
-
-			this.webview.addEventListener('dom-ready', () => {
+			this.refs.webview.addEventListener('dom-ready', () => {
 				if (this.destroyed) return;
 
 				const { selectedFile } = this.store.get();
 				if (selectedFile) this.load(selectedFile);
 			});
 
-			// TODO also activate on click
 			this.store.set({
 				lastSelectedEditor: this
 			});
@@ -51,7 +46,7 @@
 		methods: {
 			load(file) {
 				console.log('loading', file);
-				this.webview.send('file', file);
+				this.refs.webview.send('file', file);
 
 				const { dir } = this.store.get();
 				const relative = path.relative(dir, file);
@@ -60,14 +55,19 @@
 			},
 
 			focus() {
+				this.refs.webview.focus();
+
 				this.store.set({
 					lastSelectedEditor: this
 				});
 			},
 
+			blur() {
+				this.refs.webview.blur();
+			},
+
 			locate(line, column) {
-				this.webview.focus();
-				this.webview.send('location', { line, column });
+				this.refs.webview.send('location', { line, column });
 			}
 		}
 	};

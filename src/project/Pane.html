@@ -1,4 +1,4 @@
-<div class="pane {pane.id === $focusedPane ? 'focused' : ''}" on:mousedown="focus()">
+<div class="pane {pane.id === $focusedPane ? 'focused' : ''}" on:mousedown="$set({ focusedPane: pane.id })">
 	<div class="chooser-container">
 		{#if selected}
 			<Chooser
@@ -15,6 +15,7 @@
 	<div class="pane-content">
 		<svelte:component
 			this={Component}
+			paneId={pane.id}
 			ref:pane
 			bind:status
 			bind:actions
@@ -118,9 +119,23 @@
 
 			this.set({ selected });
 
-			this.store.set({
-				focusedPane: pane.id
+			const listener = this.store.on('state', ({ changed, current, previous }) => {
+				if (changed.focusedPane) {
+					if (previous.focusedPane === pane.id) {
+						this.blur();
+					} else if (current.focusedPane === pane.id) {
+						this.focus();
+					}
+				}
 			});
+
+			this.on('destroy', listener.cancel);
+
+			if (this.store.get().inited) {
+				this.store.set({
+					focusedPane: pane.id
+				});
+			}
 		},
 
 		async onstate({ changed, current }) {
@@ -144,12 +159,14 @@
 			focus() {
 				const { pane } = this.get();
 
-				this.store.set({
-					focusedPane: pane.id
-				});
-
 				if (this.refs.pane && this.refs.pane.focus) {
 					this.refs.pane.focus();
+				}
+			},
+
+			blur() {
+				if (this.refs.pane && this.refs.pane.blur) {
+					this.refs.pane.blur();
 				}
 			},
 

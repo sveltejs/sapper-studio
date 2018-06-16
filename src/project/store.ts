@@ -21,11 +21,12 @@ class StudioStore extends Store {
 	}
 
 	selectFile(file, loc) {
-		this.set({
-			selectedFile: file
-		});
+		const { lastSelectedEditor, focusedPane } = this.get();
 
-		const { lastSelectedEditor } = this.get();
+		this.set({
+			selectedFile: file,
+			focusedPane: lastSelectedEditor ? lastSelectedEditor.get().paneId : focusedPane
+		});
 
 		if (lastSelectedEditor) {
 			lastSelectedEditor.load(file);
@@ -151,6 +152,7 @@ class StudioStore extends Store {
 }
 
 const store = new StudioStore({
+	inited: false,
 	dir,
 	metaKey: /win/i.test(navigator.platform) ? 'Ctrl' : 'Cmd',
 	combined: '',

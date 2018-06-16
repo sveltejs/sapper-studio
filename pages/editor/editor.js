@@ -85,3 +85,11 @@ amdRequire(['vs/editor/editor.main'], function() {
 		}
 	});
 });
+
+window.addEventListener('focus', () => {
+	if (editor) editor.focus();
+});
+
+window.addEventListener('blur', () => {
+	if (editor) editor.blur();
+});

@@ -66,3 +66,11 @@ terminal.loadWebfontAndOpen(document.querySelector('main')).then(() => {
 	ready = true;
 	if (dir) init();
 });
+
+window.addEventListener('focus', () => {
+	terminal.focus();
+});
+
+window.addEventListener('blur', () => {
+	terminal.blur();
+});
