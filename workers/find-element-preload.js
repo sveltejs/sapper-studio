@@ -2,6 +2,6 @@
 
 const { ipcRenderer } = require('electron');
 
-window.selectElement = element => {
+window.__selectElement = element => {
 	ipcRenderer.sendToHost('select-element', element.__svelte_meta.loc);
 };

@@ -64,7 +64,7 @@ if (!window.__findElement) {
 				.shift();
 
 			if (element) {
-				window.selectElement(element);
+				window.__selectElement(element);
 			}
 
 			cancel();
