@@ -11,14 +11,14 @@ watcher.on('ready', event => {
 		type: 'ready',
 		port: event.port
 	});
+});
 
-	event.process.stdout.on('data', data => {
-		process.stdout.write(data);
-	});
+watcher.on('stdout', data => {
+	process.stdout.write(data);
+});
 
-	event.process.stderr.on('data', data => {
-		process.stderr.write(data);
-	});
+watcher.on('stderr', data => {
+	process.stderr.write(data);
 });
 
 ['error', 'fatal', 'invalid', 'build', 'basepath'].forEach(type => {
@@ -28,4 +28,11 @@ watcher.on('ready', event => {
 			event
 		});
 	});
+});
+
+process.on('message', message => {
+	if (message === 'close') {
+		watcher.close();
+		process.exit(0);
+	}
 });

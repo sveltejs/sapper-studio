@@ -139,7 +139,7 @@ class StudioStore extends Store {
 
 	stopDev() {
 		if (devWorker) {
-			devWorker.kill();
+			devWorker.send('close');
 			devWorker = null;
 		}
 
