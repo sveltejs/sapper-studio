@@ -65,7 +65,8 @@ amdRequire(['vs/editor/editor.main'], function() {
 	editor = monaco.editor.create(container, {
 		value: initial.value || '',
 		language: initial.lang || 'javascript',
-		theme: "vs-dark"
+		theme: "vs-dark",
+		fontFamily: "Fira Code"
 	});
 
 	if (initial.loc) {
