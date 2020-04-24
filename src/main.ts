@@ -31,6 +31,10 @@ function reloadOnChange(win) {
 
 function launch() {
 	launcherWindow = new BrowserWindow({
+		webPreferences: {
+			nodeIntegration: true,
+			webviewTag: true,
+		},
 		width: 800,
 		height: 600,
 		minWidth: 600,
@@ -62,6 +66,10 @@ function openProject(dir) {
 	fs.writeFileSync(path.join(userData, 'recent.json'), JSON.stringify(recent));
 
 	projectWindow = new BrowserWindow({
+		webPreferences: {
+			nodeIntegration: true,
+			webviewTag: true,
+		},
 		title: dir,
 		backgroundColor: '#111',
 		width: 1024,
@@ -125,16 +133,15 @@ app.on('activate', function() {
 	}
 });
 
-ipcMain.on('create-new-project', event => {
+ipcMain.on('create-new-project', async (event) => {
 	// dialog.showSaveDialog(launcherWindow, {
-	dialog.showOpenDialog(launcherWindow, {
+	const result = await dialog.showOpenDialog(launcherWindow, {
 		title: 'Create project',
 		buttonLabel: 'Create project',
 		properties: ['openDirectory', 'createDirectory'],
-	}, async (filenames) => {
-		if (!filenames) return;
-
-		const [filename] = filenames;
+	});
+	if (!result.canceled && result.filePaths.length > 0) {
+		const [filename] = result.filePaths;
 
 		event.sender.send('status', `cloning repo to ${path.basename(filename)}...`);
 
@@ -149,25 +156,25 @@ ipcMain.on('create-new-project', event => {
 		await exec(`npm install`, { cwd: filename });
 
 		openProject(filename);
-	});
+	}
 });
 
-ipcMain.on('open-existing-project', (event, dir) => {
+ipcMain.on('open-existing-project', async (event, dir) => {
 	if (dir) {
 		openProject(dir);
 	} else {
-		dialog.showOpenDialog(launcherWindow, {
+		const result = await dialog.showOpenDialog(launcherWindow, {
 			title: 'Open project',
 			buttonLabel: 'Open project',
 			properties: ['openDirectory'],
-		}, async (filenames) => {
-			if (!filenames) return;
-
+		});
+		if (!result.canceled && result.filePaths.length > 0) {
+			const filename = result.filePaths[0];
 			// bizarrely, without the setTimeout the launcher
 			// window doesn't close. ????
 			setTimeout(() => {
-				openProject(filenames[0]);
+				openProject(filename);
 			}, 0);
-		});
+		}
 	}
 });
